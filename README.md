@@ -65,10 +65,19 @@ new SPFormData('#filter', {
     submitTimeout: true,
     delayBeforeSend: 600,
     autoSubmit: true,
-    response: data => {
-        console.log(data)
+    response: data => {        
+        // {
+        // date: DESC,
+        // option: [1, 3],
+        // search: "product name"
+        // }
     }
 });
+```
+
+#### GET URL:
+```
+http://site.com?search=product+name&date=DESC&option=1,2
 ```
 
 ### Options:
