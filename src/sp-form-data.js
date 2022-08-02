@@ -97,9 +97,9 @@ export default class SPFormData {
             arrDataForm.forEach(function (item) {
                 if (!SPFormData.isEmpty(item.value)) {
                     if (!result.hasOwnProperty(item.name)) {
-                        result[item.name] = item.value
+                        result[item.name] = item.value.replace(/ /g, '+')
                     } else {
-                        result[item.name] += ',' + item.value
+                        result[item.name] += ',' + item.value.replace(/ /g, '+')
                     }
                 }
             })
