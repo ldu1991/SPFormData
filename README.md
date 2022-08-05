@@ -68,7 +68,7 @@ new SPFormData('#filter', {
     response: data => {        
         // {
         // date: DESC,
-        // option: [1, 3],
+        // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
         // search: "product name"
         // }
     }
