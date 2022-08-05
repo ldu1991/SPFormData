@@ -98,10 +98,14 @@ class SPFormData {
                 }
             })
 
-            let url = '?' + decodeURIComponent(this.getUrlString(result));
-            history.pushState({}, '', url);
+            if(!SPFormData.isEmptyObject(result)) {
+                let url = '?' + decodeURIComponent(this.getUrlString(result));
+                history.pushState({}, '', url);
 
-            this.searchParams()
+                this.searchParams()
+            } else {
+                this.resetForm()
+            }
         } else {
             this.resetForm()
         }
