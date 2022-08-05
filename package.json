@@ -1,6 +1,6 @@
 {
     "name": "sp-form-data",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "description": "Plugin for getting form data and defining URL of search parameters",
     "main": "./dist/sp-form-data.js",
     "keywords": [

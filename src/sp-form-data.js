@@ -16,8 +16,6 @@ class SPFormData {
         const spFormDataParams = Object.assign({}, defaults);
         this.params = Object.assign({}, spFormDataParams, params);
 
-        console.log(this.params)
-
         this.query = null;
 
         this.init();
