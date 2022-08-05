@@ -1,27 +1,30 @@
-export default class SPFormData {
-    /**
-     * Constructor
-     * @param elementForm
-     * @param options
-     */
-    constructor(elementForm, options) {
-        this.elementForm = elementForm
-        this.options = Object.assign({}, {
-            submitTimeout: true,
-            delayBeforeSend: 600,
-            autoSubmit: true,
-            response: data => {}
-        }, options)
-        this.query = null
+'use strict';
 
-        this.init()
+let defaults = {
+    submitTimeout: true,
+    delayBeforeSend: 600,
+    autoSubmit: true,
+}
+
+class SPFormData {
+
+    constructor(el, params) {
+
+        if (!params) params = {};
+        params = Object.assign({}, params);
+
+        this.el = el
+
+        const spFormDataParams = Object.assign({}, defaults);
+        this.params = Object.assign({}, spFormDataParams, params);
+
+        this.query = null;
+
+        this.init();
+
+        return this;
     }
 
-    /**
-     * serializeArray
-     * @param formElement
-     * @returns {*[]}
-     */
     serializeArray(formElement) {
         const formData = new FormData(formElement);
         const pairs = [];
@@ -31,13 +34,6 @@ export default class SPFormData {
         return pairs;
     }
 
-    /**
-     *
-     * @param params
-     * @param keys
-     * @param isArray
-     * @returns {string}
-     */
     getUrlString(params, keys = [], isArray = false) {
         const p = Object.keys(params).map(key => {
             let val = params[key]
@@ -76,7 +72,7 @@ export default class SPFormData {
             query = {}
 
         for (let pair of params.entries()) {
-            if(pair[1] !== '') {
+            if (pair[1] !== '') {
                 if (pair[1].indexOf(',') !== -1) {
                     query[pair[0]] = pair[1].split(',')
                 } else {
@@ -85,14 +81,14 @@ export default class SPFormData {
             }
         }
 
-        this.query = query
+        this.query = !SPFormData.isEmptyObject(query) ? query : null
         this.sendForm()
     }
 
     activateForm(el) {
         let arrDataForm = this.serializeArray(el)
 
-        if(arrDataForm.length) {
+        if (arrDataForm.length) {
             let result = {};
             arrDataForm.forEach(function (item) {
                 if (!SPFormData.isEmpty(item.value)) {
@@ -121,8 +117,10 @@ export default class SPFormData {
     }
 
     sendForm() {
-        if (typeof this.options.response === 'function') {
-            this.options.response(this.query);
+        if (typeof this.params.response === 'function') {
+            if (this.params && this.params.response) {
+                this.params.response(this.query)
+            }
         } else {
             throw new Error('SPFormData#response must be passed a plain function');
         }
@@ -131,38 +129,38 @@ export default class SPFormData {
     init() {
         let form = null;
 
-        if (typeof (this.elementForm) === 'undefined' || this.elementForm === null) {
+        if (typeof (this.el) === 'undefined' || this.el === null) {
             return
         }
 
-        if (typeof (this.elementForm) !== 'object' && typeof (this.elementForm) === 'string') {
-            form = document.querySelector(this.elementForm)
+        if (typeof (this.el) !== 'object' && typeof (this.el) === 'string') {
+            form = document.querySelector(this.el)
         } else {
-            form = this.elementForm
+            form = this.el
         }
 
-        if(form !== null) {
+        if (form !== null) {
             if (form.tagName === 'FORM') {
                 form.addEventListener('submit', (e) => {
                     e.preventDefault()
 
-                    if (!this.options.autoSubmit) {
+                    if (!this.params.autoSubmit) {
                         this.activateForm(form)
                     }
                 })
 
-                if (this.options.autoSubmit) {
+                if (this.params.autoSubmit) {
                     form.querySelectorAll('select, input, textarea').forEach(element => {
                         element.addEventListener('change', () => {
-                            if(this.options.submitTimeout) {
-                                if (this.options.submitTimeout) clearTimeout(this.options.submitTimeout);
-                                this.options.submitTimeout = setTimeout(() => {
+                            if (this.params.submitTimeout) {
+                                if (this.params.submitTimeout) clearTimeout(this.params.submitTimeout);
+                                this.params.submitTimeout = setTimeout(() => {
                                     this.activateForm(form)
-                                }, this.options.delayBeforeSend)
+                                }, this.params.delayBeforeSend)
                             } else {
                                 setTimeout(() => {
                                     this.activateForm(form)
-                                }, this.options.delayBeforeSend)
+                                }, this.params.delayBeforeSend)
                             }
                         })
                     })
@@ -187,5 +185,14 @@ export default class SPFormData {
 
     static isEmpty(value) {
         return !value || !/[^\s]+/.test(value);
+    }
+
+    static isEmptyObject(obj) {
+        for (let i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
