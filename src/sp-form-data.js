@@ -1,22 +1,22 @@
 'use strict';
 
-let defaults = {
-    submitTimeout: true,
-    delayBeforeSend: 600,
-    autoSubmit: true,
-}
-
 class SPFormData {
 
     constructor(el, params) {
-
-        if (!params) params = {};
-        params = Object.assign({}, params);
+        let defaults = {
+            submitTimeout: true,
+            delayBeforeSend: 600,
+            autoSubmit: true,
+        }
 
         this.el = el
 
+        if (!params) params = {};
+        params = Object.assign({}, params);
         const spFormDataParams = Object.assign({}, defaults);
         this.params = Object.assign({}, spFormDataParams, params);
+
+        console.log(this.params)
 
         this.query = null;
 
