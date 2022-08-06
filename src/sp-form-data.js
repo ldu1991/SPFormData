@@ -7,6 +7,7 @@ class SPFormData {
             submitTimeout: true,
             delayBeforeSend: 600,
             autoSubmit: true,
+            changeGetUrl: true
         }
 
         this.el = el
@@ -66,21 +67,55 @@ class SPFormData {
     }
 
     searchParams() {
-        let params = new URLSearchParams(location.search),
-            query = {}
+        if(this.params.changeGetUrl) {
+            let params = new URLSearchParams(location.search),
+                query = {}
 
-        for (let pair of params.entries()) {
-            if (pair[1] !== '') {
-                if (pair[1].indexOf(',') !== -1) {
-                    query[pair[0]] = pair[1].split(',')
-                } else {
-                    query[pair[0]] = pair[1]
+            for (let pair of params.entries()) {
+                if (pair[1] !== '') {
+                    if (pair[1].indexOf(',') !== -1) {
+                        query[pair[0]] = pair[1].split(',')
+                    } else {
+                        query[pair[0]] = pair[1]
+                    }
                 }
             }
-        }
 
-        this.query = !SPFormData.isEmptyObject(query) ? query : null
+            this.query = !SPFormData.isEmptyObject(query) ? query : null
+        }
         this.sendForm()
+    }
+
+    changeGetUrl(arr) {
+        if (!SPFormData.isEmptyObject(arr)) {
+            let url = '?' + decodeURIComponent(this.getUrlString(arr));
+            history.pushState({}, '', url);
+
+            this.searchParams()
+        } else {
+            this.resetForm()
+        }
+    }
+
+    noChangeGetUrl(arr) {
+        if (!SPFormData.isEmptyObject(arr)) {
+            let query = {}
+
+            for (let pair in arr) {
+                if (arr[pair] !== '') {
+                    if (arr[pair].indexOf(',') !== -1) {
+                        query[pair] = arr[pair].split(',')
+                    } else {
+                        query[pair] = arr[pair]
+                    }
+                }
+            }
+
+            this.query = query
+            this.searchParams()
+        } else {
+            this.resetForm()
+        }
     }
 
     activateForm(el) {
@@ -98,13 +133,10 @@ class SPFormData {
                 }
             })
 
-            if(!SPFormData.isEmptyObject(result)) {
-                let url = '?' + decodeURIComponent(this.getUrlString(result));
-                history.pushState({}, '', url);
-
-                this.searchParams()
+            if(this.params.changeGetUrl) {
+                this.changeGetUrl(result)
             } else {
-                this.resetForm()
+                this.noChangeGetUrl(result)
             }
         } else {
             this.resetForm()
@@ -172,16 +204,18 @@ class SPFormData {
             }
         }
 
-        window.addEventListener('popstate', () => {
+        if(this.params.changeGetUrl) {
+            window.addEventListener('popstate', () => {
+                if (location.search !== '') {
+                    this.searchParams()
+                } else {
+                    this.resetForm();
+                }
+            })
+
             if (location.search !== '') {
                 this.searchParams()
-            } else {
-                this.resetForm();
             }
-        })
-
-        if (location.search !== '') {
-            this.searchParams()
         }
     }
 
