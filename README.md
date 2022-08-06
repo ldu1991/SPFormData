@@ -65,6 +65,7 @@ new SPFormData('#filter', {
     submitTimeout: true,
     delayBeforeSend: 600,
     autoSubmit: true,
+    changeGetUrl: true,
     response: data => {        
         // {
         // date: DESC,
@@ -86,4 +87,5 @@ http://site.com?search=product+name&date=DESC&option=1,2
 submitTimeout: boolean // Clearing timeout during form selection/input. Default: true
 delayBeforeSend: number // Delay before executing and submitting the form. Default: 600
 autoSubmit: boolean // Listen for form changes and auto submit. Default: true
+changeGetUrl: boolean // Change get url or not.  Default: true
 ```
