@@ -1,8 +1,8 @@
 {
     "name": "sp-form-data",
-    "version": "1.1.7",
+    "version": "1.1.8",
     "description": "Plugin for getting form data and defining URL of search parameters",
-    "main": "./dist/sp-form-data.js",
+    "main": "./sp-form-data.js",
     "keywords": [
         "formdata",
         "form",
@@ -18,15 +18,5 @@
     "bugs": {
         "url": "https://github.com/ldu1991/sp-form-data/issues"
     },
-    "homepage": "https://github.com/ldu1991/sp-form-data/#readme",
-    "devDependencies": {
-        "@babel/core": "latest",
-        "@babel/preset-env": "latest",
-        "gulp": "latest",
-        "gulp-babel": "latest",
-        "gulp-plumber": "latest",
-        "gulp-rename": "latest",
-        "gulp-uglify": "latest",
-        "gulp-umd": "latest"
-    }
+    "homepage": "https://github.com/ldu1991/sp-form-data/#readme"
 }

@@ -1,0 +1,23 @@
+{
+    "name": "sp-form-data-builder",
+    "author": "Denis Lipatov",
+    "license": "BSD",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ldu1991/sp-form-data.git"
+    },
+    "bugs": {
+        "url": "https://github.com/ldu1991/sp-form-data/issues"
+    },
+    "homepage": "https://github.com/ldu1991/sp-form-data/#readme",
+    "devDependencies": {
+        "@babel/core": "latest",
+        "@babel/preset-env": "latest",
+        "gulp": "latest",
+        "gulp-babel": "latest",
+        "gulp-plumber": "latest",
+        "gulp-rename": "latest",
+        "gulp-uglify": "latest",
+        "gulp-umd": "latest"
+    }
+}

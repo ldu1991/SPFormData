@@ -40,13 +40,13 @@
     <input type="submit" value="submit">
 </form>
 
-<script src="../dist/sp-form-data.js"></script>
+<script src="../sp-form-data.js"></script>
 <script>
     new SPFormData('#filter', {
         submitTimeout: true,
         delayBeforeSend: 650,
         autoSubmit: true,
-        changeGetUrl: false,
+        changeGetUrl: true,
         response: data => {
             console.log(data)
         }
