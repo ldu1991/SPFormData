@@ -66,6 +66,7 @@ new SPFormData('#filter', {
     delayBeforeSend: 600,
     autoSubmit: true,
     changeGetUrl: true,
+    formSynchronization: false,
     response: data => {        
         // {
         // date: DESC,
@@ -78,14 +79,25 @@ new SPFormData('#filter', {
 
 #### GET URL:
 ```
-http://site.com?search=product+name&date=DESC&option=1,2
+site.com?search=product+name&date=DESC&option=1,2
 ```
 
 ### Options:
 
 ``` js
-submitTimeout: boolean // Clearing timeout during form selection/input. Default: true
-delayBeforeSend: number // Delay before executing and submitting the form. Default: 600
-autoSubmit: boolean // Listen for form changes and auto submit. Default: true
-changeGetUrl: boolean // Change get url or not.  Default: true
+// Clearing timeout during form selection/input. Default: true
+submitTimeout: boolean
+
+// Delay before executing and submitting the form. Default: 600
+delayBeforeSend: number
+
+// Listen for form changes and auto submit. Default: true 
+autoSubmit: boolean
+
+// Change get url or not.  Default: true
+changeGetUrl: boolean
+
+// You can synchronize several forms so that they work as one. Default: false
+// Example: demo/sp-form-data-default-synchronize.html
+formSynchronization: boolean
 ```

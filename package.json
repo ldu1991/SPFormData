@@ -1,13 +1,15 @@
 {
     "name": "sp-form-data",
-    "version": "1.1.8",
+    "version": "1.2.8",
     "description": "Plugin for getting form data and defining URL of search parameters",
     "main": "./sp-form-data.js",
     "keywords": [
         "formdata",
         "form",
         "data",
-        "ajaxfilter"
+        "filter",
+        "ajaxfilter",
+        "formfilter"
     ],
     "author": "Denis Lipatov",
     "license": "BSD",

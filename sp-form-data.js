@@ -1,5 +1,5 @@
 /**
- * SPFormData 1.1.8
+ * SPFormData 1.2.8
  * VanillaJS (_pure JavaScript_) plugin that reads form data with a change in Get URL parameters
  * https://github.com/ldu1991/sp-form-data
  *
@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: August 7, 2022
+ * Released on: August 9, 2022
  */
 
 (function(global, factory) {
@@ -28,7 +28,8 @@
                 submitTimeout: true,
                 delayBeforeSend: 600,
                 autoSubmit: true,
-                changeGetUrl: true
+                changeGetUrl: true,
+                formSynchronization: false
             }
 
             this.el = el
@@ -52,6 +53,21 @@
                 pairs.push({name, value});
             }
             return pairs;
+        }
+
+        normalizeArray(arrDataForm) {
+            let result = {};
+            arrDataForm.forEach(function (item) {
+                if (!SPFormData.isEmpty(item.value)) {
+                    if (!result.hasOwnProperty(item.name)) {
+                        result[item.name] = item.value.replace(/ /g, '+')
+                    } else {
+                        result[item.name] += ',' + item.value.replace(/ /g, '+')
+                    }
+                }
+            })
+
+            return result;
         }
 
         getUrlString(params, keys = [], isArray = false) {
@@ -140,17 +156,14 @@
         }
 
         activateForm(el) {
-            let arrDataForm = this.serializeArray(el)
-
-            if (arrDataForm.length) {
+            if(this.params.formSynchronization) {
                 let result = {};
-                arrDataForm.forEach(function (item) {
-                    if (!SPFormData.isEmpty(item.value)) {
-                        if (!result.hasOwnProperty(item.name)) {
-                            result[item.name] = item.value.replace(/ /g, '+')
-                        } else {
-                            result[item.name] += ',' + item.value.replace(/ /g, '+')
-                        }
+                el.forEach(formElement => {
+                    let arrDataForm = this.serializeArray(formElement)
+                    if (arrDataForm.length) {
+                        result = Object.assign({}, result, this.normalizeArray(arrDataForm));
+                    } else {
+                        this.resetForm()
                     }
                 })
 
@@ -160,7 +173,18 @@
                     this.noChangeGetUrl(result)
                 }
             } else {
-                this.resetForm()
+                let arrDataForm = this.serializeArray(el)
+                if (arrDataForm.length) {
+                    let result = this.normalizeArray(arrDataForm);
+
+                    if(this.params.changeGetUrl) {
+                        this.changeGetUrl(result)
+                    } else {
+                        this.noChangeGetUrl(result)
+                    }
+                } else {
+                    this.resetForm()
+                }
             }
         }
 
@@ -184,45 +208,53 @@
         init() {
             let form = null;
 
-            if (typeof (this.el) === 'undefined' || this.el === null) {
+            if (typeof this.el === 'undefined' || this.el === null || this.el === '') {
                 return
             }
 
             if (typeof (this.el) !== 'object' && typeof (this.el) === 'string') {
-                form = document.querySelector(this.el)
+                form = document.querySelectorAll(this.el)
             } else {
-                form = this.el
+                if(NodeList.prototype.isPrototypeOf(this.el)) {
+                    form = this.el
+                } else {
+                    form = [this.el]
+                }
             }
 
             if (form !== null) {
-                if (form.tagName === 'FORM') {
-                    form.addEventListener('submit', (e) => {
-                        e.preventDefault()
+                form.forEach(formElement => {
+                    let activateFormElement = this.params.formSynchronization ? form : formElement;
 
-                        if (!this.params.autoSubmit) {
-                            this.activateForm(form)
-                        }
-                    })
+                    if (formElement.tagName === 'FORM') {
+                        formElement.addEventListener('submit', (e) => {
+                            e.preventDefault()
 
-                    if (this.params.autoSubmit) {
-                        form.querySelectorAll('select, input, textarea').forEach(element => {
-                            element.addEventListener('change', () => {
-                                if (this.params.submitTimeout) {
-                                    if (this.params.submitTimeout) clearTimeout(this.params.submitTimeout);
-                                    this.params.submitTimeout = setTimeout(() => {
-                                        this.activateForm(form)
-                                    }, this.params.delayBeforeSend)
-                                } else {
-                                    setTimeout(() => {
-                                        this.activateForm(form)
-                                    }, this.params.delayBeforeSend)
-                                }
-                            })
+                            if (!this.params.autoSubmit) {
+                                this.activateForm(activateFormElement)
+                            }
                         })
+
+                        if (this.params.autoSubmit) {
+                            formElement.querySelectorAll('select, input, textarea').forEach(element => {
+                                element.addEventListener('change', () => {
+                                    if (this.params.submitTimeout) {
+                                        if (this.params.submitTimeout) clearTimeout(this.params.submitTimeout);
+                                        this.params.submitTimeout = setTimeout(() => {
+                                            this.activateForm(activateFormElement)
+                                        }, this.params.delayBeforeSend)
+                                    } else {
+                                        setTimeout(() => {
+                                            this.activateForm(activateFormElement)
+                                        }, this.params.delayBeforeSend)
+                                    }
+                                })
+                            })
+                        }
+                    } else {
+                        throw new Error('SPFormData constructor must be passed a form element');
                     }
-                } else {
-                    throw new Error('SPFormData constructor must be passed a form element');
-                }
+                })
             }
 
             if(this.params.changeGetUrl) {
