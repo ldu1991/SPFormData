@@ -1,0 +1,7 @@
+# Browsers that we support
+> 0.5%,
+last 2 versions,
+Firefox ESR,
+ie > 10,
+iOS > 9,
+not dead
