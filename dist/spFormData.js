@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: August 17, 2022
+ * Released on: August 18, 2022
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -106,8 +106,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -191,30 +189,17 @@ var SPFormData = /*#__PURE__*/function () {
     key: "searchParams",
     value: function searchParams() {
       if (this.params.changeGetUrl) {
-        var params = new URLSearchParams(location.search);
+        var params = new URLSearchParams(window.location.search);
         var query = {};
-
-        var _iterator = _createForOfIteratorHelper(params.entries()),
-            _step;
-
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var pair = _step.value;
-
-            if (pair[1] !== '') {
-              if (pair[1].indexOf(',') !== -1) {
-                query[pair[0]] = pair[1].split(',');
-              } else {
-                query[pair[0]] = pair[1];
-              }
+        params.forEach(function (value, key) {
+          if (value !== '') {
+            if (value.indexOf(',') !== -1) {
+              query[key] = value.split(',');
+            } else {
+              query[key] = value;
             }
           }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
-        }
-
+        });
         this.query = !isEmptyObject(query) ? query : null;
       }
 
@@ -225,7 +210,7 @@ var SPFormData = /*#__PURE__*/function () {
     value: function changeGetUrl(arr) {
       if (!isEmptyObject(arr)) {
         var url = "?".concat(decodeURIComponent(this.getUrlString(arr)));
-        history.pushState({}, '', url);
+        window.history.pushState({}, '', url);
         this.searchParams();
       } else {
         this.resetForm();
@@ -236,8 +221,7 @@ var SPFormData = /*#__PURE__*/function () {
     value: function noChangeGetUrl(arr) {
       if (!isEmptyObject(arr)) {
         var query = {};
-
-        for (var pair in arr) {
+        Object.keys(arr).forEach(function (pair) {
           if (arr[pair] !== '') {
             if (arr[pair].indexOf(',') !== -1) {
               query[pair] = arr[pair].split(',');
@@ -245,8 +229,7 @@ var SPFormData = /*#__PURE__*/function () {
               query[pair] = arr[pair];
             }
           }
-        }
-
+        });
         this.query = query;
         this.searchParams();
       } else {
@@ -294,7 +277,7 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "resetForm",
     value: function resetForm() {
-      history.pushState({}, '', '.');
+      window.history.pushState({}, '', '.');
       this.query = null;
       this.sendForm();
     }
@@ -349,14 +332,14 @@ var SPFormData = /*#__PURE__*/function () {
 
       if (this.params.changeGetUrl) {
         window.addEventListener('popstate', function () {
-          if (location.search !== '') {
+          if (window.location.search !== '') {
             _this3.searchParams();
           } else {
             _this3.resetForm();
           }
         });
 
-        if (location.search !== '') {
+        if (window.location.search !== '') {
           this.searchParams();
         }
       }

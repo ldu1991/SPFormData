@@ -61,15 +61,15 @@ export default class SPFormData {
             const params = new URLSearchParams(window.location.search);
             const query = {};
 
-            for (const pair of params.entries()) {
-                if (pair[1] !== '') {
-                    if (pair[1].indexOf(',') !== -1) {
-                        query[pair[0]] = pair[1].split(',');
+            params.forEach((value, key) => {
+                if (value !== '') {
+                    if (value.indexOf(',') !== -1) {
+                        query[key] = value.split(',');
                     } else {
-                        query[pair[0]] = pair[1];
+                        query[key] = value;
                     }
                 }
-            }
+            });
 
             this.query = !isEmptyObject(query) ? query : null;
         }
@@ -79,7 +79,7 @@ export default class SPFormData {
     changeGetUrl(arr) {
         if (!isEmptyObject(arr)) {
             const url = `?${decodeURIComponent(this.getUrlString(arr))}`;
-            history.pushState({}, '', url);
+            window.history.pushState({}, '', url);
 
             this.searchParams();
         } else {
@@ -91,7 +91,7 @@ export default class SPFormData {
         if (!isEmptyObject(arr)) {
             const query = {};
 
-            for (const pair in arr) {
+            Object.keys(arr).forEach((pair) => {
                 if (arr[pair] !== '') {
                     if (arr[pair].indexOf(',') !== -1) {
                         query[pair] = arr[pair].split(',');
@@ -99,7 +99,7 @@ export default class SPFormData {
                         query[pair] = arr[pair];
                     }
                 }
-            }
+            });
 
             this.query = query;
             this.searchParams();
@@ -142,7 +142,7 @@ export default class SPFormData {
     }
 
     resetForm() {
-        history.pushState({}, '', '.');
+        window.history.pushState({}, '', '.');
 
         this.query = null;
         this.sendForm();
@@ -194,14 +194,14 @@ export default class SPFormData {
 
         if (this.params.changeGetUrl) {
             window.addEventListener('popstate', () => {
-                if (location.search !== '') {
+                if (window.location.search !== '') {
                     this.searchParams();
                 } else {
                     this.resetForm();
                 }
             });
 
-            if (location.search !== '') {
+            if (window.location.search !== '') {
                 this.searchParams();
             }
         }
