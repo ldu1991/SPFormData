@@ -1,5 +1,5 @@
 /*!
- * SPFormData 1.2.9
+ * SPFormData 1.4.11
  * VanillaJS (pure JavaScript) plugin that reads form data with a change in Get URL parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: August 18, 2022
+ * Released on: August 30, 2022
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -140,7 +140,7 @@ var SPFormData = /*#__PURE__*/function () {
       delayBeforeSend: 600,
       autoSubmit: true,
       changeGetUrl: true,
-      formSynchronization: false
+      formSync: false
     };
     this.params = Object.assign(this.defaults, params);
     this.query = null;
@@ -241,7 +241,7 @@ var SPFormData = /*#__PURE__*/function () {
     value: function activateForm(el) {
       var _this2 = this;
 
-      if (this.params.formSynchronization) {
+      if (this.params.formSync) {
         var result = {};
         el.forEach(function (formElement) {
           var arrDataForm = helpers_serializeArray(formElement);
@@ -284,12 +284,46 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "sendForm",
     value: function sendForm() {
-      if (typeof this.params.response === 'function') {
-        if (this.params && this.params.response) {
-          this.params.response(this.query);
+      if (this.params.response) {
+        if (typeof this.params.response === 'function') {
+          if (this.params && this.params.response) {
+            this.params.response(this.query);
+          }
+        } else {
+          throw new Error('SPFormData#response must be passed a plain function');
         }
+      }
+
+      var event;
+
+      if (window.CustomEvent && typeof window.CustomEvent === 'function') {
+        event = new CustomEvent('spFormDataResponse', {
+          detail: {
+            query: this.query
+          }
+        });
       } else {
-        throw new Error('SPFormData#response must be passed a plain function');
+        event = document.createEvent('CustomEvent');
+        event.initCustomEvent('spFormDataResponse', true, true, {
+          query: this.query
+        });
+      }
+
+      this.elements.forEach(function (formElement) {
+        formElement.dispatchEvent(event);
+      });
+    }
+  }, {
+    key: "response",
+    value: function response(data) {
+      this.elements.forEach(function (formElement) {
+        formElement.addEventListener('spFormDataResponse', function (event) {
+          data(event.detail.query);
+        });
+      });
+
+      if (window.location.search !== '') {
+        data(this.query);
       }
     }
   }, {
@@ -298,7 +332,7 @@ var SPFormData = /*#__PURE__*/function () {
       var _this3 = this;
 
       this.elements.forEach(function (formElement) {
-        var activateFormElement = _this3.params.formSynchronization ? _this3.elements : formElement;
+        var activateFormElement = _this3.params.formSync ? _this3.elements : formElement;
 
         if (formElement.tagName === 'FORM') {
           formElement.addEventListener('submit', function (e) {

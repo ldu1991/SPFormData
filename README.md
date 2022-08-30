@@ -61,12 +61,12 @@ If you don't want to include **SPFormData** files in your project, you can inclu
 #### Initialization:
 
 ``` javascript
-new SPFormData('#filter', {
+let spFD = new SPFormData('#filter', {
     submitTimeout: true,
     delayBeforeSend: 600,
     autoSubmit: true,
     changeGetUrl: true,
-    formSynchronization: false,
+    formSync: false,
     response: data => {        
         // {
         // date: DESC,
@@ -74,6 +74,10 @@ new SPFormData('#filter', {
         // search: "product name"
         // }
     }
+    
+    spFD.response(data => {
+        console.log(data)
+    })
 });
 ```
 
@@ -98,6 +102,6 @@ autoSubmit: boolean
 changeGetUrl: boolean
 
 // You can synchronize several forms so that they work as one. Default: false
-// Example: demo/sp-form-data-default-synchronize.html
-formSynchronization: boolean
+// Example: demo/sync.html
+formSync: boolean
 ```

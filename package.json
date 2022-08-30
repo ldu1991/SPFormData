@@ -1,6 +1,6 @@
 {
     "name": "sp-form-data",
-    "version": "1.2.9",
+    "version": "1.4.11",
     "description": "VanillaJS (pure JavaScript) plugin that reads form data with a change in Get URL parameters",
     "main": "./dist/spFormData.min.js",
     "keywords": [
@@ -22,14 +22,12 @@
     },
     "homepage": "https://github.com/ldu1991/sp-form-data/#readme",
     "scripts": {
-        "start": "webpack-dev-server --mode development --open --port 3000 --hot",
+        "start": "webpack serve --mode development",
         "build": "webpack --mode production",
         "format": "prettier --write '**/**.{js,json,html}'",
         "lint": "eslint src --ext .js --fix"
     },
     "devDependencies": {
-        "webpack": "latest",
-        "webpack-dev-server": "latest",
         "@babel/core": "latest",
         "@babel/preset-env": "latest",
         "babel-loader": "latest",
@@ -42,6 +40,8 @@
         "moment": "latest",
         "prettier": "latest",
         "terser-webpack-plugin": "latest",
-        "webpack-cli": "latest"
+        "webpack": "latest",
+        "webpack-cli": "latest",
+        "webpack-dev-server": "latest"
     }
 }

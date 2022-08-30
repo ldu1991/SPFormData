@@ -14,7 +14,7 @@ export default class SPFormData {
             delayBeforeSend: 600,
             autoSubmit: true,
             changeGetUrl: true,
-            formSynchronization: false
+            formSync: false
         };
 
         this.params = Object.assign(this.defaults, params);
@@ -109,7 +109,7 @@ export default class SPFormData {
     }
 
     activateForm(el) {
-        if (this.params.formSynchronization) {
+        if (this.params.formSync) {
             let result = {};
             el.forEach((formElement) => {
                 const arrDataForm = serializeArray(formElement);
@@ -149,18 +149,44 @@ export default class SPFormData {
     }
 
     sendForm() {
-        if (typeof this.params.response === 'function') {
-            if (this.params && this.params.response) {
-                this.params.response(this.query);
+        if (this.params.response) {
+            if (typeof this.params.response === 'function') {
+                if (this.params && this.params.response) {
+                    this.params.response(this.query);
+                }
+            } else {
+                throw new Error('SPFormData#response must be passed a plain function');
             }
+        }
+
+        let event;
+        if (window.CustomEvent && typeof window.CustomEvent === 'function') {
+            event = new CustomEvent('spFormDataResponse', { detail: { query: this.query } });
         } else {
-            throw new Error('SPFormData#response must be passed a plain function');
+            event = document.createEvent('CustomEvent');
+            event.initCustomEvent('spFormDataResponse', true, true, { query: this.query });
+        }
+
+        this.elements.forEach((formElement) => {
+            formElement.dispatchEvent(event);
+        });
+    }
+
+    response(data) {
+        this.elements.forEach((formElement) => {
+            formElement.addEventListener('spFormDataResponse', (event) => {
+                data(event.detail.query);
+            });
+        });
+
+        if (window.location.search !== '') {
+            data(this.query);
         }
     }
 
     init() {
         this.elements.forEach((formElement) => {
-            const activateFormElement = this.params.formSynchronization ? this.elements : formElement;
+            const activateFormElement = this.params.formSync ? this.elements : formElement;
 
             if (formElement.tagName === 'FORM') {
                 formElement.addEventListener('submit', (e) => {

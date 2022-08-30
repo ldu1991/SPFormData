@@ -1,9 +1,9 @@
-const path = require('path');
-const webpack = require('webpack');
-const moment = require('moment');
-const now = moment().format('MMMM DD, YYYY');
+const path              = require('path');
+const webpack           = require('webpack');
+const moment            = require('moment');
+const now               = moment().format('MMMM DD, YYYY');
 
-const TerserPlugin = require('terser-webpack-plugin');
+const TerserPlugin      = require('terser-webpack-plugin');
 
 const PACKAGE = require('./package.json'),
     version = PACKAGE.version,
@@ -37,6 +37,17 @@ module.exports = {
         libraryTarget: 'umd',
         umdNamedDefine: true,
         libraryExport: 'default'
+    },
+    devServer: {
+        watchFiles: ['src/**/*', 'demo/**/*'],
+        static: {
+            directory: path.join(__dirname, '/'),
+            staticOptions: {
+                redirect: true,
+            },
+        },
+        open: true,
+        port: 3000
     },
     optimization: {
         minimize: true,
