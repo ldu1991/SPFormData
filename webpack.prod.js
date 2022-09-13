@@ -35,10 +35,12 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, './dist'),
         filename: '[name].js',
-        library: 'SPFormData',
-        libraryTarget: 'umd',
-        umdNamedDefine: true,
-        libraryExport: 'default'
+        library: {
+            name: 'SPFormData',
+            type: 'umd',
+            umdNamedDefine: true,
+            export: 'default'
+        }
     },
     optimization: {
         minimize: true,
