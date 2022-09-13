@@ -1,15 +1,16 @@
-const path              = require('path');
-const webpack           = require('webpack');
-const moment            = require('moment');
-const now               = moment().format('MMMM DD, YYYY');
+const path                  = require('path');
+const webpack               = require('webpack');
+const {CleanWebpackPlugin}  = require('clean-webpack-plugin');
+const moment                = require('moment');
+const now                   = moment().format('MMMM DD, YYYY');
 
-const TerserPlugin      = require('terser-webpack-plugin');
+const TerserPlugin          = require('terser-webpack-plugin');
 
-const PACKAGE = require('./package.json'),
-    version = PACKAGE.version,
-    description = PACKAGE.description,
-    author = PACKAGE.author,
-    homepage = PACKAGE.homepage;
+const PACKAGE               = require('./package.json'),
+    version                 = PACKAGE.version,
+    description             = PACKAGE.description,
+    author                  = PACKAGE.author,
+    homepage                = PACKAGE.homepage;
 
 const BannerPlugin = new webpack.BannerPlugin({
     banner: `/*!
@@ -27,27 +28,17 @@ const BannerPlugin = new webpack.BannerPlugin({
 });
 
 module.exports = {
+    mode: "production",
     entry: {
         spFormData: './src/spFormData.js', 'spFormData.min': './src/spFormData.js'
     },
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, './dist'),
         filename: '[name].js',
         library: 'SPFormData',
         libraryTarget: 'umd',
         umdNamedDefine: true,
         libraryExport: 'default'
-    },
-    devServer: {
-        watchFiles: ['src/**/*', 'demo/**/*'],
-        static: {
-            directory: path.join(__dirname, '/'),
-            staticOptions: {
-                redirect: true,
-            },
-        },
-        open: true,
-        port: 3000
     },
     optimization: {
         minimize: true,
@@ -72,5 +63,8 @@ module.exports = {
             }
         ]
     },
-    plugins: [BannerPlugin]
+    plugins: [
+        new CleanWebpackPlugin(),
+        BannerPlugin
+    ]
 };

@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: August 30, 2022
+ * Released on: September 13, 2022
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')

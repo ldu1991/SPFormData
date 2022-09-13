@@ -48,21 +48,5 @@
     <input type="submit" value="submit">
 </form>
 
-<script src="../dist/spFormData.js"></script>
-<script>
-    let spFD = new SPFormData('#filter', {
-        submitTimeout: true,
-        delayBeforeSend: 650,
-        autoSubmit: true,
-        changeGetUrl: true,
-        // response: data => {
-        //     console.log(data)
-        // }
-    });
-
-    spFD.response(data => {
-        console.log(data)
-    })
-</script>
 </body>
 </html>
