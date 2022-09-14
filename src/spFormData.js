@@ -5,9 +5,9 @@ import { isEmptyObject } from './helpers/isEmpty';
 
 export default class SPFormData {
     constructor(elements, params) {
-        if (!elements) return;
-
         this.elements = convertToArray(elements);
+
+        if (!this.elements.length) return;
 
         this.defaults = {
             submitTimeout: true,

@@ -1,5 +1,5 @@
 /*!
- * SPFormData 1.4.11
+ * SPFormData 1.4.12
  * VanillaJS (pure JavaScript) plugin that reads form data with a change in Get URL parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: September 13, 2022
+ * Released on: September 14, 2022
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -133,8 +133,8 @@ var SPFormData = /*#__PURE__*/function () {
   function SPFormData(elements, params) {
     _classCallCheck(this, SPFormData);
 
-    if (!elements) return;
     this.elements = helpers_convertToArray(elements);
+    if (!this.elements.length) return;
     this.defaults = {
       submitTimeout: true,
       delayBeforeSend: 600,

@@ -102,6 +102,5 @@ autoSubmit: boolean
 changeGetUrl: boolean
 
 // You can synchronize several forms so that they work as one. Default: false
-// Example: demo/sync.html
 formSync: boolean
 ```
