@@ -58,7 +58,7 @@ If you don't want to include **SPFormData** files in your project, you can inclu
 <script src="/dist/sp-form-data.js"></script>
 ```
 
-#### Initialization:
+#### Usage:
 
 ``` javascript
 let spFD = new SPFormData('#filter', {
@@ -75,10 +75,33 @@ let spFD = new SPFormData('#filter', {
         // }
     }
     
+    // OR Response
+    
     spFD.response(data => {
-        console.log(data)
+        // {
+        // date: DESC,
+        // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
+        // search: "product name"
+        // }
     })
 });
+```
+
+You can also work directly with DOM nodes in a few ways:
+``` javascript
+let node = document.querySelector('#filter');
+let nodeList = document.querySelectorAll('#filter');
+let nodeArray = [
+    document.querySelector('#filter'),
+    document.querySelector('#sorting'),
+    document.querySelector('#pagination')
+];
+
+new SPFormData(node, {})
+new SPFormData(nodeList, {})
+new SPFormData(nodeArray, {})
+new SPFormData('#filter', {})
+new SPFormData('#filter, #sorting, #pagination', {})
 ```
 
 #### GET URL:
