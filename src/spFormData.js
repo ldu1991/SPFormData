@@ -10,7 +10,6 @@ export default class SPFormData {
         if (!this.elements.length) return;
 
         this.defaults = {
-            submitTimeout: true,
             delayBeforeSend: 600,
             autoSubmit: true,
             changeGetUrl: true,
@@ -20,6 +19,8 @@ export default class SPFormData {
         this.params = Object.assign(this.defaults, params);
 
         this.query = null;
+
+        this.submitTimeout = true;
 
         this.init();
     }
@@ -200,16 +201,10 @@ export default class SPFormData {
                 if (this.params.autoSubmit) {
                     formElement.querySelectorAll('select, input, textarea').forEach((element) => {
                         element.addEventListener('change', () => {
-                            if (this.params.submitTimeout) {
-                                if (this.params.submitTimeout) clearTimeout(this.params.submitTimeout);
-                                this.params.submitTimeout = setTimeout(() => {
-                                    this.activateForm(activateFormElement);
-                                }, this.params.delayBeforeSend);
-                            } else {
-                                setTimeout(() => {
-                                    this.activateForm(activateFormElement);
-                                }, this.params.delayBeforeSend);
-                            }
+                            if (this.submitTimeout) clearTimeout(this.submitTimeout);
+                            this.submitTimeout = setTimeout(() => {
+                                this.activateForm(activateFormElement);
+                            }, this.params.delayBeforeSend);
                         });
                     });
                 }

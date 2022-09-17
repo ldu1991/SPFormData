@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: September 16, 2022
+ * Released on: September 17, 2022
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -163,7 +163,6 @@ var SPFormData = /*#__PURE__*/function () {
     this.elements = helpers_convertToArray(elements);
     if (!this.elements.length) return;
     this.defaults = {
-      submitTimeout: true,
       delayBeforeSend: 600,
       autoSubmit: true,
       changeGetUrl: true,
@@ -171,6 +170,7 @@ var SPFormData = /*#__PURE__*/function () {
     };
     this.params = Object.assign(this.defaults, params);
     this.query = null;
+    this.submitTimeout = true;
     this.init();
   }
 
@@ -373,16 +373,10 @@ var SPFormData = /*#__PURE__*/function () {
           if (_this3.params.autoSubmit) {
             formElement.querySelectorAll('select, input, textarea').forEach(function (element) {
               element.addEventListener('change', function () {
-                if (_this3.params.submitTimeout) {
-                  if (_this3.params.submitTimeout) clearTimeout(_this3.params.submitTimeout);
-                  _this3.params.submitTimeout = setTimeout(function () {
-                    _this3.activateForm(activateFormElement);
-                  }, _this3.params.delayBeforeSend);
-                } else {
-                  setTimeout(function () {
-                    _this3.activateForm(activateFormElement);
-                  }, _this3.params.delayBeforeSend);
-                }
+                if (_this3.submitTimeout) clearTimeout(_this3.submitTimeout);
+                _this3.submitTimeout = setTimeout(function () {
+                  _this3.activateForm(activateFormElement);
+                }, _this3.params.delayBeforeSend);
               });
             });
           }

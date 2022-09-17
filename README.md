@@ -62,7 +62,6 @@ If you don't want to include **SPFormData** files in your project, you can inclu
 
 ``` javascript
 let spFD = new SPFormData('#filter', {
-    submitTimeout: true,
     delayBeforeSend: 600,
     autoSubmit: true,
     changeGetUrl: true,
@@ -112,9 +111,6 @@ site.com?search=product+name&date=DESC&option=1,2
 ### Options:
 
 ``` js
-// Clearing timeout during form selection/input. Default: true
-submitTimeout: boolean
-
 // Delay before executing and submitting the form. Default: 600
 delayBeforeSend: number
 
