@@ -32,8 +32,8 @@ module.exports = (env) => {
     let arr = {
         mode: env.production ? "production" : "development",
         entry: env.production ?
-            {spFormData: './src/spFormData.js', 'spFormData.min': './src/spFormData.js'} :
-            {spFormData: './src/spFormData.js', app: './demo/app.js'},
+            {'sp-form-data': './src/sp-form-data.js', 'sp-form-data.min': './src/sp-form-data.js'} :
+            {'sp-form-data': './src/sp-form-data.js', app: './demo/app.js'},
         output: {
             path: path.resolve(__dirname, './dist'),
             filename: '[name].js',

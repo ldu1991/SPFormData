@@ -4,14 +4,14 @@ VanillaJS (_pure JavaScript_) plugin that reads form data with a change in **Get
 
 ## Install
 
-```
+```text
 npm install --save sp-form-data
 ```
 
 ## Usage
 
 #### HTML:
-``` html
+```html
 <form id="filter">
     <label>
         <input type="text" name="search" placeholder="Search...">
@@ -49,22 +49,30 @@ npm install --save sp-form-data
 ```
 
 #### JavaScript:
-``` javascript
+```js
 // import SPFormData
 import SPFormData from 'sp-form-data';
 ```
 If you don't want to include **SPFormData** files in your project, you can include it with a file
-``` html
+```html
 <script src="/dist/sp-form-data.js"></script>
 ```
 
 #### Usage:
 
-``` javascript
+```js
 let spFD = new SPFormData('#filter', {
+    // Delay before executing and submitting the form. Default: 600
     delayBeforeSend: 600,
+    
+    // Listen for form changes and auto submit. Default: true 
     autoSubmit: true,
+    
+    // Change get url or not. Default: true
     changeGetUrl: true,
+
+    // You can synchronize several forms 
+    // so that they work as one. Default: false
     formSync: false,
     response: data => {        
         // {
@@ -73,21 +81,21 @@ let spFD = new SPFormData('#filter', {
         // search: "product name"
         // }
     }
-    
-    // OR Response
-    
-    spFD.response(data => {
-        // {
-        // date: DESC,
-        // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
-        // search: "product name"
-        // }
-    })
 });
+
+// OR Response
+
+spFD.response(data => {
+    // {
+    // date: DESC,
+    // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
+    // search: "product name"
+    // }
+})
 ```
 
 You can also work directly with DOM nodes in a few ways:
-``` javascript
+```js
 let node = document.querySelector('#filter');
 let nodeList = document.querySelectorAll('#filter');
 let nodeArray = [
@@ -104,22 +112,6 @@ new SPFormData('#filter, #sorting, #pagination', {})
 ```
 
 #### GET URL:
-```
+```text
 site.com?search=product+name&date=DESC&option=1,2
-```
-
-### Options:
-
-``` js
-// Delay before executing and submitting the form. Default: 600
-delayBeforeSend: number
-
-// Listen for form changes and auto submit. Default: true 
-autoSubmit: boolean
-
-// Change get url or not.  Default: true
-changeGetUrl: boolean
-
-// You can synchronize several forms so that they work as one. Default: false
-formSync: boolean
 ```

@@ -1,4 +1,4 @@
-import SPFormData from '../src/spFormData'
+import SPFormData from '../src/sp-form-data'
 
 let filter = document.querySelectorAll('#filter')
 
