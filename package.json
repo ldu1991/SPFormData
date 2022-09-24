@@ -1,6 +1,6 @@
 {
     "name": "sp-form-data",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "description": "VanillaJS (pure JavaScript) plugin that reads form data with a change in Get URL parameters",
     "main": "./dist/sp-form-data.min.js",
     "keywords": [
