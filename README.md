@@ -62,6 +62,10 @@ If you don't want to include **SPFormData** files in your project, you can inclu
 
 ```js
 let spFD = new SPFormData('#filter', {
+    // Sets the separator to value GET URL. Default: ','
+    // Example: ?option=1,2,4
+    separator: ',',
+    
     // Delay before executing and submitting the form. Default: 600
     delayBeforeSend: 600,
     
