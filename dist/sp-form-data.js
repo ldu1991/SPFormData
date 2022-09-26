@@ -1,5 +1,5 @@
 /*!
- * SPFormData 1.5.0
+ * SPFormData 1.5.1
  * VanillaJS (pure JavaScript) plugin that reads form data with a change in Get URL parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: September 24, 2022
+ * Released on: September 26, 2022
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -111,14 +111,14 @@ var isEmptyObject = function isEmptyObject(obj) {
 ;// CONCATENATED MODULE: ./src/helpers/normalizeArray.js
 
 
-var normalizeArray = function normalizeArray(arrDataForm) {
+var normalizeArray = function normalizeArray(arrDataForm, separator, changeGetUrl) {
   var result = {};
   arrDataForm.forEach(function (item) {
     if (!isEmpty(item.value)) {
       if (!result.hasOwnProperty(item.name)) {
-        result[item.name] = item.value.replace(/ /g, '+');
+        result[item.name] = changeGetUrl ? item.value.replace(/ /g, '+') : item.value;
       } else {
-        result[item.name] += ",".concat(item.value.replace(/ /g, '+'));
+        result[item.name] += changeGetUrl ? separator + item.value.replace(/ /g, '+') : separator + item.value;
       }
     }
   });
@@ -126,6 +126,12 @@ var normalizeArray = function normalizeArray(arrDataForm) {
 };
 
 /* harmony default export */ var helpers_normalizeArray = (normalizeArray);
+;// CONCATENATED MODULE: ./src/helpers/isValid.js
+var isValid = function isValid(str) {
+  return /^[|,]+$/.test(str);
+};
+
+/* harmony default export */ var helpers_isValid = (isValid);
 ;// CONCATENATED MODULE: ./src/sp-form-data.js
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
@@ -133,23 +139,12 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
 
 
 
@@ -163,65 +158,31 @@ var SPFormData = /*#__PURE__*/function () {
     this.elements = helpers_convertToArray(elements);
     if (!this.elements.length) return;
     this.defaults = {
+      separator: ',',
       delayBeforeSend: 600,
       autoSubmit: true,
       changeGetUrl: true,
       formSync: false
     };
     this.params = Object.assign(this.defaults, params);
+    if (!helpers_isValid(this.params.separator)) this.params.separator = this.defaults.separator;
     this.query = null;
     this.submitTimeout = true;
     this.init();
   }
 
   _createClass(SPFormData, [{
-    key: "getUrlString",
-    value: function getUrlString(params) {
-      var _this = this;
-
-      var keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-      var isArray = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-      var p = Object.keys(params).map(function (key) {
-        var val = params[key];
-
-        if (Object.prototype.toString.call(val) === '[object Object]' || Array.isArray(val)) {
-          if (Array.isArray(params)) {
-            keys.push('');
-          } else {
-            keys.push(key);
-          }
-
-          return _this.getUrlString(val, keys, Array.isArray(val));
-        }
-
-        var tKey = key;
-
-        if (keys.length > 0) {
-          var tKeys = isArray ? keys : [].concat(_toConsumableArray(keys), [key]);
-          tKey = tKeys.reduce(function (str, k) {
-            return str === '' ? k : "".concat(str, "[").concat(k, "]");
-          }, '');
-        }
-
-        if (isArray) {
-          return "".concat(tKey, "[]=").concat(val);
-        }
-
-        return "".concat(tKey, "=").concat(val);
-      }).join('&');
-      keys.pop();
-      return p;
-    }
-  }, {
     key: "searchParams",
     value: function searchParams() {
+      var _this = this;
+
       if (this.params.changeGetUrl) {
         var params = new URLSearchParams(window.location.search);
         var query = {};
         params.forEach(function (value, key) {
           if (value !== '') {
-            if (value.indexOf(',') !== -1) {
-              query[key] = value.split(',');
+            if (value.indexOf(_this.params.separator) !== -1) {
+              query[key] = value.split(_this.params.separator);
             } else {
               query[key] = value;
             }
@@ -236,7 +197,16 @@ var SPFormData = /*#__PURE__*/function () {
     key: "changeGetUrl",
     value: function changeGetUrl(arr) {
       if (!isEmptyObject(arr)) {
-        var url = "?".concat(decodeURIComponent(this.getUrlString(arr)));
+        var loc = new URL(window.location);
+        Object.keys(arr).forEach(function (key) {
+          loc.searchParams.forEach(function (value, name) {
+            if (name !== key) loc.searchParams.delete(name);
+          });
+        });
+        Object.keys(arr).forEach(function (key) {
+          loc.searchParams.set(key, arr[key]);
+        });
+        var url = decodeURIComponent(loc.href);
         window.history.pushState({}, '', url);
         this.searchParams();
       } else {
@@ -246,12 +216,14 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "noChangeGetUrl",
     value: function noChangeGetUrl(arr) {
+      var _this2 = this;
+
       if (!isEmptyObject(arr)) {
         var query = {};
         Object.keys(arr).forEach(function (pair) {
           if (arr[pair] !== '') {
-            if (arr[pair].indexOf(',') !== -1) {
-              query[pair] = arr[pair].split(',');
+            if (arr[pair].indexOf(_this2.params.separator) !== -1) {
+              query[pair] = arr[pair].split(_this2.params.separator);
             } else {
               query[pair] = arr[pair];
             }
@@ -266,7 +238,7 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "activateForm",
     value: function activateForm(el) {
-      var _this2 = this;
+      var _this3 = this;
 
       if (this.params.formSync) {
         var result = {};
@@ -274,9 +246,9 @@ var SPFormData = /*#__PURE__*/function () {
           var arrDataForm = helpers_serializeArray(formElement);
 
           if (arrDataForm.length) {
-            result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm));
+            result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this3.params.separator, _this3.params.changeGetUrl));
           } else {
-            _this2.resetForm();
+            _this3.resetForm();
           }
         });
 
@@ -289,7 +261,7 @@ var SPFormData = /*#__PURE__*/function () {
         var arrDataForm = helpers_serializeArray(el);
 
         if (arrDataForm.length) {
-          var _result = helpers_normalizeArray(arrDataForm);
+          var _result = helpers_normalizeArray(arrDataForm, this.params.separator, this.params.changeGetUrl);
 
           if (this.params.changeGetUrl) {
             this.changeGetUrl(_result);
@@ -356,27 +328,27 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "init",
     value: function init() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.elements.forEach(function (formElement) {
-        var activateFormElement = _this3.params.formSync ? _this3.elements : formElement;
+        var activateFormElement = _this4.params.formSync ? _this4.elements : formElement;
 
         if (formElement.tagName === 'FORM') {
           formElement.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            if (!_this3.params.autoSubmit) {
-              _this3.activateForm(activateFormElement);
+            if (!_this4.params.autoSubmit) {
+              _this4.activateForm(activateFormElement);
             }
           });
 
-          if (_this3.params.autoSubmit) {
+          if (_this4.params.autoSubmit) {
             formElement.querySelectorAll('select, input, textarea').forEach(function (element) {
               element.addEventListener('change', function () {
-                if (_this3.submitTimeout) clearTimeout(_this3.submitTimeout);
-                _this3.submitTimeout = setTimeout(function () {
-                  _this3.activateForm(activateFormElement);
-                }, _this3.params.delayBeforeSend);
+                if (_this4.submitTimeout) clearTimeout(_this4.submitTimeout);
+                _this4.submitTimeout = setTimeout(function () {
+                  _this4.activateForm(activateFormElement);
+                }, _this4.params.delayBeforeSend);
               });
             });
           }
@@ -388,9 +360,9 @@ var SPFormData = /*#__PURE__*/function () {
       if (this.params.changeGetUrl) {
         window.addEventListener('popstate', function () {
           if (window.location.search !== '') {
-            _this3.searchParams();
+            _this4.searchParams();
           } else {
-            _this3.resetForm();
+            _this4.resetForm();
           }
         });
 

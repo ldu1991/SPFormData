@@ -1,6 +1,7 @@
 import convertToArray from './helpers/convertToArray';
 import serializeArray from './helpers/serializeArray';
 import normalizeArray from './helpers/normalizeArray';
+import isValid from './helpers/isValid';
 import { isEmptyObject } from './helpers/isEmpty';
 
 export default class SPFormData {
@@ -10,6 +11,7 @@ export default class SPFormData {
         if (!this.elements.length) return;
 
         this.defaults = {
+            separator: ',',
             delayBeforeSend: 600,
             autoSubmit: true,
             changeGetUrl: true,
@@ -18,43 +20,13 @@ export default class SPFormData {
 
         this.params = Object.assign(this.defaults, params);
 
+        if (!isValid(this.params.separator)) this.params.separator = this.defaults.separator;
+
         this.query = null;
 
         this.submitTimeout = true;
 
         this.init();
-    }
-
-    getUrlString(params, keys = [], isArray = false) {
-        const p = Object.keys(params)
-            .map((key) => {
-                const val = params[key];
-
-                if (Object.prototype.toString.call(val) === '[object Object]' || Array.isArray(val)) {
-                    if (Array.isArray(params)) {
-                        keys.push('');
-                    } else {
-                        keys.push(key);
-                    }
-                    return this.getUrlString(val, keys, Array.isArray(val));
-                }
-                let tKey = key;
-
-                if (keys.length > 0) {
-                    const tKeys = isArray ? keys : [...keys, key];
-                    tKey = tKeys.reduce((str, k) => {
-                        return str === '' ? k : `${str}[${k}]`;
-                    }, '');
-                }
-                if (isArray) {
-                    return `${tKey}[]=${val}`;
-                }
-                return `${tKey}=${val}`;
-            })
-            .join('&');
-
-        keys.pop();
-        return p;
     }
 
     searchParams() {
@@ -64,8 +36,8 @@ export default class SPFormData {
 
             params.forEach((value, key) => {
                 if (value !== '') {
-                    if (value.indexOf(',') !== -1) {
-                        query[key] = value.split(',');
+                    if (value.indexOf(this.params.separator) !== -1) {
+                        query[key] = value.split(this.params.separator);
                     } else {
                         query[key] = value;
                     }
@@ -79,7 +51,19 @@ export default class SPFormData {
 
     changeGetUrl(arr) {
         if (!isEmptyObject(arr)) {
-            const url = `?${decodeURIComponent(this.getUrlString(arr))}`;
+            const loc = new URL(window.location);
+            Object.keys(arr).forEach((key) => {
+                loc.searchParams.forEach((value, name) => {
+                    if (name !== key) loc.searchParams.delete(name);
+                });
+            });
+
+            Object.keys(arr).forEach((key) => {
+                loc.searchParams.set(key, arr[key]);
+            });
+
+            const url = decodeURIComponent(loc.href);
+
             window.history.pushState({}, '', url);
 
             this.searchParams();
@@ -94,8 +78,8 @@ export default class SPFormData {
 
             Object.keys(arr).forEach((pair) => {
                 if (arr[pair] !== '') {
-                    if (arr[pair].indexOf(',') !== -1) {
-                        query[pair] = arr[pair].split(',');
+                    if (arr[pair].indexOf(this.params.separator) !== -1) {
+                        query[pair] = arr[pair].split(this.params.separator);
                     } else {
                         query[pair] = arr[pair];
                     }
@@ -115,7 +99,7 @@ export default class SPFormData {
             el.forEach((formElement) => {
                 const arrDataForm = serializeArray(formElement);
                 if (arrDataForm.length) {
-                    result = { ...result, ...normalizeArray(arrDataForm) };
+                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, this.params.changeGetUrl) };
                 } else {
                     this.resetForm();
                 }
@@ -129,7 +113,7 @@ export default class SPFormData {
         } else {
             const arrDataForm = serializeArray(el);
             if (arrDataForm.length) {
-                const result = normalizeArray(arrDataForm);
+                const result = normalizeArray(arrDataForm, this.params.separator, this.params.changeGetUrl);
 
                 if (this.params.changeGetUrl) {
                     this.changeGetUrl(result);

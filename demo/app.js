@@ -3,6 +3,7 @@ import SPFormData from '../src/sp-form-data'
 let filter = document.querySelectorAll('#filter')
 
 let spFD = new SPFormData(filter, {
+    separator: ',',
     submitTimeout: true,
     delayBeforeSend: 650,
     autoSubmit: true,
@@ -14,11 +15,12 @@ let spFD = new SPFormData(filter, {
 });
 
 spFD.response(data => {
-    console.log(data)
+    //console.log(data)
 })
 
 
 new SPFormData('#filter-sync, #pagination-sync', {
+    separator: ',',
     submitTimeout: true,
     delayBeforeSend: 650,
     autoSubmit: true,
