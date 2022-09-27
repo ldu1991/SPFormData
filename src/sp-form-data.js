@@ -99,7 +99,7 @@ export default class SPFormData {
             el.forEach((formElement) => {
                 const arrDataForm = serializeArray(formElement);
                 if (arrDataForm.length) {
-                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, this.params.changeGetUrl) };
+                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator) };
                 } else {
                     this.resetForm();
                 }
@@ -113,7 +113,7 @@ export default class SPFormData {
         } else {
             const arrDataForm = serializeArray(el);
             if (arrDataForm.length) {
-                const result = normalizeArray(arrDataForm, this.params.separator, this.params.changeGetUrl);
+                const result = normalizeArray(arrDataForm, this.params.separator);
 
                 if (this.params.changeGetUrl) {
                     this.changeGetUrl(result);
@@ -127,7 +127,9 @@ export default class SPFormData {
     }
 
     resetForm() {
-        window.history.pushState({}, '', '.');
+        if (this.params.changeGetUrl) {
+            window.history.pushState({}, '', '.');
+        }
 
         this.query = null;
         this.sendForm();

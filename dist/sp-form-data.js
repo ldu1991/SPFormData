@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: September 26, 2022
+ * Released on: September 27, 2022
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -111,14 +111,14 @@ var isEmptyObject = function isEmptyObject(obj) {
 ;// CONCATENATED MODULE: ./src/helpers/normalizeArray.js
 
 
-var normalizeArray = function normalizeArray(arrDataForm, separator, changeGetUrl) {
+var normalizeArray = function normalizeArray(arrDataForm, separator) {
   var result = {};
   arrDataForm.forEach(function (item) {
     if (!isEmpty(item.value)) {
       if (!result.hasOwnProperty(item.name)) {
-        result[item.name] = changeGetUrl ? item.value.replace(/ /g, '+') : item.value;
+        result[item.name] = item.value;
       } else {
-        result[item.name] += changeGetUrl ? separator + item.value.replace(/ /g, '+') : separator + item.value;
+        result[item.name] += separator + item.value;
       }
     }
   });
@@ -246,7 +246,7 @@ var SPFormData = /*#__PURE__*/function () {
           var arrDataForm = helpers_serializeArray(formElement);
 
           if (arrDataForm.length) {
-            result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this3.params.separator, _this3.params.changeGetUrl));
+            result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this3.params.separator));
           } else {
             _this3.resetForm();
           }
@@ -261,7 +261,7 @@ var SPFormData = /*#__PURE__*/function () {
         var arrDataForm = helpers_serializeArray(el);
 
         if (arrDataForm.length) {
-          var _result = helpers_normalizeArray(arrDataForm, this.params.separator, this.params.changeGetUrl);
+          var _result = helpers_normalizeArray(arrDataForm, this.params.separator);
 
           if (this.params.changeGetUrl) {
             this.changeGetUrl(_result);
@@ -276,7 +276,10 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "resetForm",
     value: function resetForm() {
-      window.history.pushState({}, '', '.');
+      if (this.params.changeGetUrl) {
+        window.history.pushState({}, '', '.');
+      }
+
       this.query = null;
       this.sendForm();
     }

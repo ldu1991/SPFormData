@@ -1,13 +1,13 @@
 import { isEmpty } from './isEmpty';
 
-const normalizeArray = (arrDataForm, separator, changeGetUrl) => {
+const normalizeArray = (arrDataForm, separator) => {
     const result = {};
     arrDataForm.forEach((item) => {
         if (!isEmpty(item.value)) {
             if (!result.hasOwnProperty(item.name)) {
-                result[item.name] = changeGetUrl ? item.value.replace(/ /g, '+') : item.value;
+                result[item.name] = item.value;
             } else {
-                result[item.name] += changeGetUrl ? separator + item.value.replace(/ /g, '+') : separator + item.value;
+                result[item.name] += separator + item.value;
             }
         }
     });
