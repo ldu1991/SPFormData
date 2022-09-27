@@ -324,7 +324,7 @@ var SPFormData = /*#__PURE__*/function () {
         });
       });
 
-      if (window.location.search !== '') {
+      if (this.params.changeGetUrl && window.location.search !== '') {
         data(this.query);
       }
     }

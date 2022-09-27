@@ -15,7 +15,7 @@ let spFD = new SPFormData(filter, {
 });
 
 spFD.response(data => {
-    //console.log(data)
+    console.log(data)
 })
 
 
