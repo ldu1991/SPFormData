@@ -1,5 +1,5 @@
 /*!
- * SPFormData 1.6.0
+ * SPFormData 1.6.1
  * VanillaJS (pure JavaScript) plugin that reads form data with a change in Get URL parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
