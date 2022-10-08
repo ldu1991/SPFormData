@@ -2,7 +2,7 @@ import SPFormData from '../src/core'
 
 let filter = document.querySelectorAll('#filter')
 
-/*let SPFD = new SPFormData(filter, {
+let SPFD = new SPFormData(filter, {
     separator: ',',
     delayBeforeSend: 650,
     autoSubmit: true,
@@ -24,7 +24,7 @@ if (!!reset) {
     reset.addEventListener('click', () => {
         SPFD.reset()
     })
-}*/
+}
 
 
 let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
@@ -66,11 +66,3 @@ if (!!resetSync) {
         SPFDSync.reset()
     })
 }
-
-
-// Test event:
-// filter.addEventListener('spFormDataResponse', (event) => {
-//     console.log(event.detail.query)
-//     // OR
-//     console.log(spFD.query)
-// })
