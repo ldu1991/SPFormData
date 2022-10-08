@@ -6,7 +6,7 @@ let SPFD = new SPFormData(filter, {
     separator: ',',
     delayBeforeSend: 650,
     autoSubmit: true,
-    changeGetUrl: true,
+    changeUrlQuery: true,
     formSync: false,
     presetQueries: ['option', 'search'],
     on: data => {
@@ -31,7 +31,7 @@ let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
     separator: ',',
     delayBeforeSend: 650,
     autoSubmit: true,
-    changeGetUrl: true,
+    changeUrlQuery: true,
     formSync: true,
     presetQueries: [],
     on: data => {

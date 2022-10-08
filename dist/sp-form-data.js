@@ -141,7 +141,7 @@ var normalizeArray = function normalizeArray(arrDataForm, separator) {
   separator: ',',
   delayBeforeSend: 300,
   autoSubmit: true,
-  changeGetUrl: true,
+  changeUrlQuery: true,
   formSync: true,
   presetQueries: []
 });
@@ -186,9 +186,9 @@ var _submitTimeout = /*#__PURE__*/new WeakMap();
 
 var _searchParams = /*#__PURE__*/new WeakSet();
 
-var _changeUrl = /*#__PURE__*/new WeakSet();
+var _changeUrlQuery = /*#__PURE__*/new WeakSet();
 
-var _noChangeUrl = /*#__PURE__*/new WeakSet();
+var _noChangeUrlQuery = /*#__PURE__*/new WeakSet();
 
 var _activateForm = /*#__PURE__*/new WeakSet();
 
@@ -206,9 +206,9 @@ var SPFormData = /*#__PURE__*/function () {
 
     _classPrivateMethodInitSpec(this, _activateForm);
 
-    _classPrivateMethodInitSpec(this, _noChangeUrl);
+    _classPrivateMethodInitSpec(this, _noChangeUrlQuery);
 
-    _classPrivateMethodInitSpec(this, _changeUrl);
+    _classPrivateMethodInitSpec(this, _changeUrlQuery);
 
     _classPrivateMethodInitSpec(this, _searchParams);
 
@@ -267,7 +267,7 @@ var SPFormData = /*#__PURE__*/function () {
           });
         });
 
-        if (this.params.changeGetUrl && window.location.search !== '') {
+        if (this.params.changeUrlQuery && window.location.search !== '') {
           data(this.query);
         }
       }
@@ -334,7 +334,7 @@ var SPFormData = /*#__PURE__*/function () {
           }
         });
 
-        if (this.params.changeGetUrl) {
+        if (this.params.changeUrlQuery) {
           window.addEventListener('popstate', function () {
             if (window.location.search !== '') {
               _classPrivateMethodGet(_this2, _searchParams, _searchParams2).call(_this2);
@@ -357,7 +357,7 @@ var SPFormData = /*#__PURE__*/function () {
 function _searchParams2() {
   var _this3 = this;
 
-  if (this.params.changeGetUrl) {
+  if (this.params.changeUrlQuery) {
     var params = new URLSearchParams(window.location.search);
     var query = {};
     params.forEach(function (value, key) {
@@ -383,7 +383,7 @@ function _searchParams2() {
   _classPrivateMethodGet(this, _sendForm, _sendForm2).call(this, this);
 }
 
-function _changeUrl2(arr) {
+function _changeUrlQuery2(arr) {
   if (!isObject(arr)) {
     var loc = new URL(window.location);
     Object.keys(arr).forEach(function (key) {
@@ -403,7 +403,7 @@ function _changeUrl2(arr) {
   }
 }
 
-function _noChangeUrl2(arr) {
+function _noChangeUrlQuery2(arr) {
   var _this4 = this;
 
   if (!isObject(arr)) {
@@ -440,10 +440,10 @@ function _activateForm2(el) {
       }
     });
 
-    if (this.params.changeGetUrl) {
-      _classPrivateMethodGet(this, _changeUrl, _changeUrl2).call(this, result);
+    if (this.params.changeUrlQuery) {
+      _classPrivateMethodGet(this, _changeUrlQuery, _changeUrlQuery2).call(this, result);
     } else {
-      _classPrivateMethodGet(this, _noChangeUrl, _noChangeUrl2).call(this, result);
+      _classPrivateMethodGet(this, _noChangeUrlQuery, _noChangeUrlQuery2).call(this, result);
     }
   } else {
     var arrDataForm = helpers_serializeArray(el);
@@ -451,10 +451,10 @@ function _activateForm2(el) {
     if (arrDataForm.length) {
       var _result = helpers_normalizeArray(arrDataForm, this.params.separator);
 
-      if (this.params.changeGetUrl) {
-        _classPrivateMethodGet(this, _changeUrl, _changeUrl2).call(this, _result);
+      if (this.params.changeUrlQuery) {
+        _classPrivateMethodGet(this, _changeUrlQuery, _changeUrlQuery2).call(this, _result);
       } else {
-        _classPrivateMethodGet(this, _noChangeUrl, _noChangeUrl2).call(this, _result);
+        _classPrivateMethodGet(this, _noChangeUrlQuery, _noChangeUrlQuery2).call(this, _result);
       }
     } else {
       _classPrivateMethodGet(this, _clear, _clear2).call(this);
@@ -494,7 +494,7 @@ function _sendForm2() {
 }
 
 function _clear2() {
-  if (this.params.changeGetUrl) {
+  if (this.params.changeUrlQuery) {
     window.history.pushState({}, '', '.');
   }
 

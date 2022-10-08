@@ -45,7 +45,7 @@ class SPFormData {
     }
 
     #searchParams() {
-        if (this.params.changeGetUrl) {
+        if (this.params.changeUrlQuery) {
             const params = new URLSearchParams(window.location.search);
             const query = {};
 
@@ -73,7 +73,7 @@ class SPFormData {
         this.#sendForm(this);
     }
 
-    #changeUrl(arr) {
+    #changeUrlQuery(arr) {
         if (!isObject(arr)) {
             const loc = new URL(window.location);
             Object.keys(arr).forEach((key) => {
@@ -96,7 +96,7 @@ class SPFormData {
         }
     }
 
-    #noChangeUrl(arr) {
+    #noChangeUrlQuery(arr) {
         if (!isObject(arr)) {
             const query = {};
 
@@ -129,20 +129,20 @@ class SPFormData {
                 }
             });
 
-            if (this.params.changeGetUrl) {
-                this.#changeUrl(result);
+            if (this.params.changeUrlQuery) {
+                this.#changeUrlQuery(result);
             } else {
-                this.#noChangeUrl(result);
+                this.#noChangeUrlQuery(result);
             }
         } else {
             const arrDataForm = serializeArray(el);
             if (arrDataForm.length) {
                 const result = normalizeArray(arrDataForm, this.params.separator);
 
-                if (this.params.changeGetUrl) {
-                    this.#changeUrl(result);
+                if (this.params.changeUrlQuery) {
+                    this.#changeUrlQuery(result);
                 } else {
-                    this.#noChangeUrl(result);
+                    this.#noChangeUrlQuery(result);
                 }
             } else {
                 this.#clear();
@@ -175,7 +175,7 @@ class SPFormData {
     }
 
     #clear() {
-        if (this.params.changeGetUrl) {
+        if (this.params.changeUrlQuery) {
             window.history.pushState({}, '', '.');
         }
 
@@ -191,7 +191,7 @@ class SPFormData {
                 });
             });
 
-            if (this.params.changeGetUrl && window.location.search !== '') {
+            if (this.params.changeUrlQuery && window.location.search !== '') {
                 data(this.query);
             }
         }
@@ -250,7 +250,7 @@ class SPFormData {
                 }
             });
 
-            if (this.params.changeGetUrl) {
+            if (this.params.changeUrlQuery) {
                 window.addEventListener('popstate', () => {
                     if (window.location.search !== '') {
                         this.#searchParams();
