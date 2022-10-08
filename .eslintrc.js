@@ -1,7 +1,8 @@
 module.exports = {
     env: {
-        browser: true,
-        es6: true
+        "browser": true,
+        "es2022": true,
+        "node": true
     },
     extends: ['airbnb-base', 'plugin:prettier/recommended'],
     globals: {
@@ -9,7 +10,7 @@ module.exports = {
         SharedArrayBuffer: 'readonly'
     },
     parserOptions: {
-        ecmaVersion: 2018,
+        ecmaVersion: 13,
         sourceType: 'module'
     },
     rules: {

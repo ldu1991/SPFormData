@@ -32,8 +32,8 @@ module.exports = (env) => {
     let arr = {
         mode: env.production ? "production" : "development",
         entry: env.production ?
-            {'sp-form-data': './src/sp-form-data.js', 'sp-form-data.min': './src/sp-form-data.js'} :
-            {'sp-form-data': './src/sp-form-data.js', app: './demo/app.js'},
+            {'sp-form-data': './src/core.js', 'sp-form-data.min': './src/core.js'} :
+            {'sp-form-data': './src/core.js', app: './demo/app.js'},
         output: {
             path: path.resolve(__dirname, './dist'),
             filename: '[name].js',
@@ -58,7 +58,7 @@ module.exports = (env) => {
         plugins: env.production ?
             [new CleanWebpackPlugin(), BannerPlugin] :
             [new HtmlWebPackPlugin({
-                template: path.resolve(__dirname, './demo/index.html'),
+                template: path.resolve(__dirname, './demo/' + env.demo + '.html'),
                 filename: 'index.html'
             })]
     }

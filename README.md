@@ -1,17 +1,19 @@
 # SPFormData
 
-VanillaJS (_pure JavaScript_) plugin that reads form data with a change in **Get URL parameters**
+VanillaJS (_pure JavaScript_) plugin that reads form data with and Change **URL Query Parameters**
 
-## Install
+## Install:
 
 ```text
 npm install --save sp-form-data
 ```
 
-## Usage
+## API:
 
-#### HTML:
+### HTML Layout:
+
 ```html
+
 <form id="filter">
     <label>
         <input type="text" name="search" placeholder="Search...">
@@ -48,57 +50,26 @@ npm install --save sp-form-data
 </form>
 ```
 
-#### JavaScript:
+#### Using JS Modules
+
 ```js
-// import SPFormData
 import SPFormData from 'sp-form-data';
 ```
-If you don't want to include **SPFormData** files in your project, you can include it with a file
+
+#### Using Build Script
+
 ```html
 <script src="/dist/sp-form-data.js"></script>
 ```
 
-#### Usage:
+### Initialize:
 
 ```js
-let spFD = new SPFormData('#filter', {
-    // Sets the separator to value GET URL. Default: ','
-    // Example: ?option=1,2,4
-    separator: ',',
-    
-    // Delay before executing and submitting the form. Default: 600
-    delayBeforeSend: 600,
-    
-    // Listen for form changes and auto submit. Default: true 
-    autoSubmit: true,
-    
-    // Change get url or not. Default: true
-    changeGetUrl: true,
-
-    // You can synchronize several forms 
-    // so that they work as one. Default: false
-    formSync: false,
-    response: data => {        
-        // {
-        // date: DESC,
-        // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
-        // search: "product name"
-        // }
-    }
-});
-
-// OR Response
-
-spFD.response(data => {
-    // {
-    // date: DESC,
-    // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
-    // search: "product name"
-    // }
-})
+let SPFD = new SPFormData('#filter', {})
 ```
 
 You can also work directly with DOM nodes in a few ways:
+
 ```js
 let node = document.querySelector('#filter');
 let nodeList = document.querySelectorAll('#filter');
@@ -116,6 +87,59 @@ new SPFormData('#filter, #sorting, #pagination', {})
 ```
 
 #### GET URL:
+
 ```text
 site.com?search=product+name&date=DESC&option=1,2
+```
+
+### Parameters
+|Name|Type|Default|Description|
+|---|---|---|---|
+|init|boolean|true|Whether **SPFormData** should be initialised automatically when you create an instance. If disabled, then you need to init it manually by calling **SPFD.init()**|
+|separator|string|","|URL Query Parameters separator
+|delayBeforeSend|number|300|Delay before executing and submitting the form.
+|autoSubmit|boolean|true|Listen for form changes and auto submit
+|changeGetUrl|boolean|true|Do not change URL query parameters
+|formSync|boolean|true|You can synchronize several forms so that they work as one
+|presetQueries|array|[...input[name]]|**SPFormData** will compare the search fields from the URL, and return only predefined fields in the request
+
+
+### Methods
+|Methods|Description|
+|---|---|
+|SPFD.init()|Initialize **SPFormData**
+|SPFD.on(data)|Event handler
+|SPFD.update()|You must call it every time you change fields dynamically.
+|SPFD.reset()|Clear form and URL Query Parameters and reset to default
+
+
+### Events
+
+1) Using ```on``` parameter in SPFormData initialization:
+```js
+const SPFD = new SPFormData('#filter', {
+    // ...
+    on: function (data) {
+        // {
+        // date: DESC,
+        // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
+        // search: "product name"
+        // }
+    }
+});
+```
+
+2) Using ```on``` method after SPFormData initialization:
+```js
+const SPFD = new SPFormData('#filter', {
+    // ...
+});
+
+SPFD.on(function (data) {
+    // {
+    // date: DESC,
+    // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
+    // search: "product name"
+    // }
+})
 ```

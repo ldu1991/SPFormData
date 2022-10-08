@@ -1,4 +1,4 @@
-import { isEmpty } from './isEmpty';
+import { isEmpty } from './utils';
 
 const normalizeArray = (arrDataForm, separator) => {
     const result = {};

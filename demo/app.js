@@ -1,35 +1,72 @@
-import SPFormData from '../src/sp-form-data'
+import SPFormData from '../src/core'
 
 let filter = document.querySelectorAll('#filter')
 
-let spFD = new SPFormData(filter, {
+/*let SPFD = new SPFormData(filter, {
     separator: ',',
-    submitTimeout: true,
     delayBeforeSend: 650,
     autoSubmit: true,
     changeGetUrl: true,
     formSync: false,
-    response: data => {
+    presetQueries: ['option', 'search'],
+    on: data => {
         console.log(data)
     }
 });
 
-spFD.response(data => {
+SPFD.on(function (data) {
     console.log(data)
 })
 
+let reset = document.querySelector('.reset')
 
-new SPFormData('#filter-sync, #pagination-sync', {
+if (!!reset) {
+    reset.addEventListener('click', () => {
+        SPFD.reset()
+    })
+}*/
+
+
+let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
     separator: ',',
-    submitTimeout: true,
     delayBeforeSend: 650,
     autoSubmit: true,
     changeGetUrl: true,
     formSync: true,
-    response: data => {
+    presetQueries: [],
+    on: data => {
         console.log(data)
     }
 });
+
+let page = 2
+let nextPage = document.querySelector('.next-page')
+let prevPage = document.querySelector('.prev-page')
+let resetSync = document.querySelector('.reset-sync')
+
+if (!!nextPage) {
+    nextPage.addEventListener('click', () => {
+        document.querySelector('[name="paged"]').value = page
+        page++
+
+        SPFDSync.update()
+    })
+}
+if (!!prevPage) {
+    prevPage.addEventListener('click', () => {
+        document.querySelector('[name="paged"]').value = page
+        page--
+
+        SPFDSync.update()
+    })
+}
+
+if (!!resetSync) {
+    resetSync.addEventListener('click', () => {
+        SPFDSync.reset()
+    })
+}
+
 
 // Test event:
 // filter.addEventListener('spFormDataResponse', (event) => {

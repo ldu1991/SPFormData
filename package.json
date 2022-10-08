@@ -1,7 +1,7 @@
 {
     "name": "sp-form-data",
     "version": "1.6.2",
-    "description": "VanillaJS (pure JavaScript) plugin that reads form data with a change in Get URL parameters",
+    "description": "VanillaJS (pure JavaScript) plugin that reads form data with and Change URL Query Parameters",
     "main": "./dist/sp-form-data.min.js",
     "keywords": [
         "formdata",
@@ -22,7 +22,8 @@
     },
     "homepage": "https://github.com/ldu1991/sp-form-data/#readme",
     "scripts": {
-        "start": "webpack serve",
+        "start": "webpack serve --env demo=index",
+        "start-sync": "webpack serve --env demo=sync",
         "build": "webpack --env production",
         "format": "prettier --write '**/**.{js,json,html}'",
         "lint": "eslint src --ext .js --fix"
