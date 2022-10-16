@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: October 08, 2022
+ * Released on: October 16, 2022
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -143,7 +143,8 @@ var normalizeArray = function normalizeArray(arrDataForm, separator) {
   autoSubmit: true,
   changeUrlQuery: true,
   formSync: true,
-  presetQueries: []
+  presetQueries: [],
+  multipleArray: true
 });
 ;// CONCATENATED MODULE: ./src/core.js
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -363,15 +364,23 @@ function _searchParams2() {
     params.forEach(function (value, key) {
       if (_this3.params.presetQueries.length) {
         if (_this3.params.presetQueries.includes(key) && value !== '') {
-          if (value.indexOf(_this3.params.separator) !== -1) {
-            query[key] = value.split(_this3.params.separator);
+          if (_this3.params.multipleArray) {
+            if (value.indexOf(_this3.params.separator) !== -1) {
+              query[key] = value.split(_this3.params.separator);
+            } else {
+              query[key] = value;
+            }
           } else {
             query[key] = value;
           }
         }
       } else if (value !== '') {
-        if (value.indexOf(_this3.params.separator) !== -1) {
-          query[key] = value.split(_this3.params.separator);
+        if (_this3.params.multipleArray) {
+          if (value.indexOf(_this3.params.separator) !== -1) {
+            query[key] = value.split(_this3.params.separator);
+          } else {
+            query[key] = value;
+          }
         } else {
           query[key] = value;
         }
@@ -410,8 +419,12 @@ function _noChangeUrlQuery2(arr) {
     var query = {};
     Object.keys(arr).forEach(function (pair) {
       if (arr[pair] !== '') {
-        if (arr[pair].indexOf(_this4.params.separator) !== -1) {
-          query[pair] = arr[pair].split(_this4.params.separator);
+        if (_this4.params.multipleArray) {
+          if (arr[pair].indexOf(_this4.params.separator) !== -1) {
+            query[pair] = arr[pair].split(_this4.params.separator);
+          } else {
+            query[pair] = arr[pair];
+          }
         } else {
           query[pair] = arr[pair];
         }

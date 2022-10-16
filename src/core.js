@@ -52,15 +52,23 @@ class SPFormData {
             params.forEach((value, key) => {
                 if (this.params.presetQueries.length) {
                     if (this.params.presetQueries.includes(key) && value !== '') {
-                        if (value.indexOf(this.params.separator) !== -1) {
-                            query[key] = value.split(this.params.separator);
+                        if(this.params.multipleArray) {
+                            if (value.indexOf(this.params.separator) !== -1) {
+                                query[key] = value.split(this.params.separator);
+                            } else {
+                                query[key] = value;
+                            }
                         } else {
                             query[key] = value;
                         }
                     }
                 } else if (value !== '') {
-                    if (value.indexOf(this.params.separator) !== -1) {
-                        query[key] = value.split(this.params.separator);
+                    if(this.params.multipleArray) {
+                        if (value.indexOf(this.params.separator) !== -1) {
+                            query[key] = value.split(this.params.separator);
+                        } else {
+                            query[key] = value;
+                        }
                     } else {
                         query[key] = value;
                     }
@@ -102,8 +110,12 @@ class SPFormData {
 
             Object.keys(arr).forEach((pair) => {
                 if (arr[pair] !== '') {
-                    if (arr[pair].indexOf(this.params.separator) !== -1) {
-                        query[pair] = arr[pair].split(this.params.separator);
+                    if(this.params.multipleArray) {
+                        if (arr[pair].indexOf(this.params.separator) !== -1) {
+                            query[pair] = arr[pair].split(this.params.separator);
+                        } else {
+                            query[pair] = arr[pair];
+                        }
                     } else {
                         query[pair] = arr[pair];
                     }

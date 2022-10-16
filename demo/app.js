@@ -34,6 +34,7 @@ let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
     changeUrlQuery: true,
     formSync: true,
     presetQueries: [],
+    multipleArray: false,
     on: data => {
         console.log(data)
     }

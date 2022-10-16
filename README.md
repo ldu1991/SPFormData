@@ -102,6 +102,7 @@ site.com?search=product+name&date=DESC&option=1,2
 |changeUrlQuery|boolean|true|Do I need to change the parameters of the URL request
 |formSync|boolean|true|You can synchronize several forms so that they work as one
 |presetQueries|array|[...input[name]]|**SPFormData** will compare the search fields from the URL, and return only predefined fields in the request
+|multipleArray|boolean|true|Whether the multiple choice will be returned as an array ```(?option=1,2,3,4 => array [1, 2, 3, 4] or string 1,2,3,4)```
 
 
 ### Methods

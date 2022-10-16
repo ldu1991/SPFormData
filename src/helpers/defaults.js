@@ -5,5 +5,6 @@ export default {
     autoSubmit: true,
     changeUrlQuery: true,
     formSync: true,
-    presetQueries: []
+    presetQueries: [],
+    multipleArray: true
 };
