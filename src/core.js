@@ -52,7 +52,7 @@ class SPFormData {
             params.forEach((value, key) => {
                 if (this.params.presetQueries.length) {
                     if (this.params.presetQueries.includes(key) && value !== '') {
-                        if(this.params.multipleArray) {
+                        if (this.params.multipleArray) {
                             if (value.indexOf(this.params.separator) !== -1) {
                                 query[key] = value.split(this.params.separator);
                             } else {
@@ -63,7 +63,7 @@ class SPFormData {
                         }
                     }
                 } else if (value !== '') {
-                    if(this.params.multipleArray) {
+                    if (this.params.multipleArray) {
                         if (value.indexOf(this.params.separator) !== -1) {
                             query[key] = value.split(this.params.separator);
                         } else {
@@ -110,7 +110,7 @@ class SPFormData {
 
             Object.keys(arr).forEach((pair) => {
                 if (arr[pair] !== '') {
-                    if(this.params.multipleArray) {
+                    if (this.params.multipleArray) {
                         if (arr[pair].indexOf(this.params.separator) !== -1) {
                             query[pair] = arr[pair].split(this.params.separator);
                         } else {
