@@ -1,6 +1,6 @@
 # SPFormData
 
-VanillaJS (_pure JavaScript_) plugin that reads form data with and Change **URL Query Parameters**
+VanillaJS (_pure JavaScript_) plugin that reads form data and Change **URL Query Parameters**
 
 ## Install:
 
@@ -68,7 +68,7 @@ import SPFormData from 'sp-form-data';
 let SPFD = new SPFormData('#filter', {})
 ```
 
-You can also work directly with DOM nodes in a few ways:
+You can also work directly with DOM nodes in several ways:
 
 ```js
 let node = document.querySelector('#filter');
@@ -95,12 +95,11 @@ site.com?search=product+name&date=DESC&option=1,2
 ### Parameters
 |Name|Type|Default|Description|
 |---|---|---|---|
-|init|boolean|true|Whether **SPFormData** should be initialised automatically when you create an instance. If disabled, then you need to init it manually by calling **SPFD.init()**|
+|init|boolean|true|Whether **SPFormData** should be initialized automatically when you create an instance. If disabled, you need to init it manually by calling **SPFD.init()**|
 |separator|string|","|URL Query Parameters separator
 |delayBeforeSend|number|300|Delay before executing and submitting the form.
 |autoSubmit|boolean|true|Listen for form changes and auto submit
 |changeUrlQuery|boolean|true|Do I need to change the parameters of the URL request
-|formSync|boolean|true|You can synchronize several forms so that they work as one
 |presetQueries|array|[...input[name]]|**SPFormData** will compare the search fields from the URL, and return only predefined fields in the request
 |multipleArray|boolean|true|Whether the multiple choice will be returned as an array ```(?option=1,2,3,4 => array [1, 2, 3, 4] or string 1,2,3,4)```
 
@@ -108,39 +107,46 @@ site.com?search=product+name&date=DESC&option=1,2
 ### Methods
 |Methods|Description|
 |---|---|
-|SPFD.init()|Initialize **SPFormData**
-|SPFD.on(data)|Event handler
-|SPFD.update()|You must call it every time you change fields dynamically.
-|SPFD.reset()|Clear form and URL Query Parameters and reset to default
+|SPFD.init()|Initialize SPFormData|
+|SPFD.update()|You should call it after you change form manually, or do any custom DOM modifications with SPFormData|
+|SPFD.reset()|Clear form and URL Query Parameters and reset to default|
+|SPFD.on(event, handler)|Add event handler|
+|SPFD.once(event, handler)|Add event handler that will be removed after it was fired|
+|SPFD.off(event, handler)|Remove event handler|
 
 
 ### Events
 
-1) Using ```on``` parameter in SPFormData initialization:
+|Event name|Arguments|Description|
+|:---|:----:|:---|
+|beforeInit|(no-arguments)|Event will fired right before initialization|
+|afterInit|(no-arguments)|Event will fired right after initialization|
+|init|(query)|Fired right after **SPFormData** initialization.<br><br>Event will be fired right after SPFormData initialization. Note that with **SPFD.on('init')** syntax it will work only in case you set **init: false** parameter:<br>```const SPFD = new SPFormData('#filter', {init: false});```<br>```SPFD.on('init', function(query) { /* do something */ });```<br>```SPFD.on('beforeInit', function(query) { /* do something */ });```<br>```SPFD.on('afterInit', function(query) { /* do something */ });```<br>```SPFD.init();```<br><br>Otherwise use it as the parameter:<br>```const SPFD = new SPFormData('#filter', {```<br>```// other parameters```<br>```on: {```<br>```init: function (query) { /* do something */ }```<br>```}```<br>```});```|
+|change|(query)|Event will be fired when currently form is changed|
+|update|(query)|Event will be fired after SPFD.update() call|
+|reset|(query)|Event will be fired when currently form is reset|
+|submit|(query)|Event will be fired when the form is submitted. Only if parameter **autoSubmit: false**|
+|popstate|(query)|Event will be fired when the active history entry changes while the user navigates the session history|
+
+
+1) Using on parameter on SPFormData initialization:
 ```js
 const SPFD = new SPFormData('#filter', {
     // ...
-    on: function (data) {
-        // {
-        // date: DESC,
-        // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
-        // search: "product name"
-        // }
-    }
+    on: {
+        init: function (query) {
+            console.log(query);
+        },
+    },
 });
 ```
-
-2) Using ```on``` method after SPFormData initialization:
+2) Using on method after SPFormData initialization.
 ```js
 const SPFD = new SPFormData('#filter', {
-    // ...
+  // ...
+});
+SPFD.on('change', function (query) {
+  console.log(query);
 });
 
-SPFD.on(function (data) {
-    // {
-    // date: DESC,
-    // option: [1, 3] or "2" /// if not more than one result then the answer will contain a string,
-    // search: "product name"
-    // }
-})
 ```

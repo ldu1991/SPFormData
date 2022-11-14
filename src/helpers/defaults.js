@@ -4,7 +4,6 @@ export default {
     delayBeforeSend: 300,
     autoSubmit: true,
     changeUrlQuery: true,
-    formSync: true,
     presetQueries: [],
     multipleArray: true
 };

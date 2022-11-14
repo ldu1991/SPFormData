@@ -7,8 +7,11 @@ import defaults from './helpers/defaults';
 class SPFormData {
     #submitTimeout;
 
+    #eventsListeners;
+
     constructor(...args) {
         this.#submitTimeout = true;
+        this.#eventsListeners = {};
 
         let el;
         let params;
@@ -22,6 +25,8 @@ class SPFormData {
 
         this.elements = convertToArray(el);
 
+        if (!this.elements.length) throw new Error('Form not defined');
+
         if (params.presetQueries === undefined && this.elements.length) {
             params.presetQueries = [];
             this.elements.forEach((formElement) => {
@@ -30,12 +35,20 @@ class SPFormData {
                         params.presetQueries.push(element.name);
                     }
                 });
+
+                if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a form element');
             });
         }
 
         this.params = { ...defaults, ...params };
 
         if (!isValid(this.params.separator)) this.params.separator = defaults.separator;
+
+        if (this.params && this.params.on) {
+            Object.keys(this.params.on).forEach((eventName) => {
+                this.on(eventName, this.params.on[eventName]);
+            });
+        }
 
         this.query = null;
 
@@ -50,11 +63,13 @@ class SPFormData {
             const query = {};
 
             params.forEach((value, key) => {
-                if (this.params.presetQueries.length) {
-                    if (this.params.presetQueries.includes(key) && value !== '') {
-                        if (this.params.multipleArray) {
-                            if (value.indexOf(this.params.separator) !== -1) {
-                                query[key] = value.split(this.params.separator);
+                const { multipleArray, presetQueries, separator } = this.params;
+
+                if (presetQueries.length) {
+                    if (presetQueries.includes(key) && value !== '') {
+                        if (multipleArray) {
+                            if (value.indexOf(separator) !== -1) {
+                                query[key] = value.split(separator);
                             } else {
                                 query[key] = value;
                             }
@@ -63,9 +78,9 @@ class SPFormData {
                         }
                     }
                 } else if (value !== '') {
-                    if (this.params.multipleArray) {
-                        if (value.indexOf(this.params.separator) !== -1) {
-                            query[key] = value.split(this.params.separator);
+                    if (multipleArray) {
+                        if (value.indexOf(separator) !== -1) {
+                            query[key] = value.split(separator);
                         } else {
                             query[key] = value;
                         }
@@ -77,8 +92,6 @@ class SPFormData {
 
             this.query = !isObject(query) ? query : null;
         }
-
-        this.#sendForm(this);
     }
 
     #changeUrlQuery(arr) {
@@ -102,6 +115,8 @@ class SPFormData {
         } else {
             this.#clear();
         }
+
+        this.#emit('change');
     }
 
     #noChangeUrlQuery(arr) {
@@ -123,159 +138,190 @@ class SPFormData {
             });
 
             this.query = query;
-            this.#searchParams();
         } else {
             this.#clear();
         }
+
+        this.#emit('change');
     }
 
-    #activateForm(el) {
-        if (this.params.formSync) {
-            let result = {};
-            el.forEach((formElement) => {
-                const arrDataForm = serializeArray(formElement);
-                if (arrDataForm.length) {
-                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator) };
-                } else {
-                    this.#clear();
-                }
-            });
-
-            if (this.params.changeUrlQuery) {
-                this.#changeUrlQuery(result);
-            } else {
-                this.#noChangeUrlQuery(result);
-            }
-        } else {
-            const arrDataForm = serializeArray(el);
+    #activateForm() {
+        let result = {};
+        this.elements.forEach((formElement) => {
+            const arrDataForm = serializeArray(formElement);
             if (arrDataForm.length) {
-                const result = normalizeArray(arrDataForm, this.params.separator);
-
-                if (this.params.changeUrlQuery) {
-                    this.#changeUrlQuery(result);
-                } else {
-                    this.#noChangeUrlQuery(result);
-                }
+                result = { ...result, ...normalizeArray(arrDataForm, this.params.separator) };
             } else {
                 this.#clear();
             }
-        }
-    }
-
-    #sendForm() {
-        if (this.params.on) {
-            if (typeof this.params.on === 'function') {
-                if (this.params && this.params.on) {
-                    this.params.on(this.query);
-                }
-            } else {
-                throw new Error('SPFormData#on must be passed a plain function');
-            }
-        }
-
-        let event;
-        if (window.CustomEvent && typeof window.CustomEvent === 'function') {
-            event = new CustomEvent('spFormData:change', { detail: { query: this.query } });
-        } else {
-            event = document.createEvent('CustomEvent');
-            event.initCustomEvent('spFormData:change', true, true, { query: this.query });
-        }
-
-        this.elements.forEach((formElement) => {
-            formElement.dispatchEvent(event);
         });
+
+        if (this.params.changeUrlQuery) {
+            this.#changeUrlQuery(result);
+        } else {
+            this.#noChangeUrlQuery(result);
+        }
     }
 
     #clear() {
         if (this.params.changeUrlQuery) {
             window.history.pushState({}, '', '.');
-        }
 
-        this.query = null;
-        this.#sendForm(this);
+            this.query = null;
+        }
     }
 
-    on(data) {
-        if (this.elements.length) {
-            this.elements.forEach((formElement) => {
-                formElement.addEventListener('spFormData:change', (event) => {
-                    data(event.detail.query);
+    #submit() {
+        this.elements.forEach((formElement) => {
+            formElement.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                if (!this.params.autoSubmit) {
+                    this.#activateForm();
+
+                    this.#emit('submit');
+                }
+            });
+        });
+    }
+
+    #autoSubmit() {
+        this.elements.forEach((formElement) => {
+            formElement.querySelectorAll('[name]').forEach((element) => {
+                element.addEventListener('change', () => {
+                    if (this.#submitTimeout) clearTimeout(this.#submitTimeout);
+                    this.#submitTimeout = setTimeout(() => {
+                        this.#activateForm();
+                    }, this.params.delayBeforeSend);
                 });
             });
+        });
+    }
 
-            if (this.params.changeUrlQuery && window.location.search !== '') {
-                data(this.query);
+    #popstate() {
+        window.addEventListener('popstate', () => {
+            if (window.location.search !== '') {
+                this.#searchParams();
+            } else {
+                this.#clear();
             }
+
+            this.#emit('popstate');
+        });
+    }
+
+    #searchParamsDefined() {
+        if (window.location.search !== '') {
+            this.#searchParams();
         }
+    }
+
+    #emit(events, query = true) {
+        const self = this;
+
+        const data = query ? self.query : '';
+
+        if (!self.#eventsListeners) return self;
+
+        const eventsArray = Array.isArray(events) ? events : events.split(' ');
+
+        eventsArray.forEach((event) => {
+            if (self.#eventsListeners && self.#eventsListeners[event]) {
+                self.#eventsListeners[event].forEach((eventHandler) => {
+                    eventHandler.call(self, data);
+                });
+            }
+        });
+
+        return self;
+    }
+
+    on(events, handler, priority) {
+        const self = this;
+
+        if (!self.#eventsListeners) return self;
+
+        if (typeof handler !== 'function') return self;
+
+        const method = priority ? 'unshift' : 'push';
+        events.split(' ').forEach((event) => {
+            if (!self.#eventsListeners[event]) self.#eventsListeners[event] = [];
+            self.#eventsListeners[event][method](handler);
+        });
+        return self;
+    }
+
+    once(events, handler, priority) {
+        const self = this;
+        if (!self.#eventsListeners) return self;
+
+        if (typeof handler !== 'function') return self;
+
+        function onceHandler(query) {
+            self.off(events, onceHandler);
+            if (onceHandler.emitterProxy) {
+                delete onceHandler.emitterProxy;
+            }
+            handler.call(self, query);
+        }
+
+        onceHandler.emitterProxy = handler;
+        return self.on(events, onceHandler, priority);
+    }
+
+    off(events, handler) {
+        const self = this;
+        if (!self.#eventsListeners) return self;
+
+        events.split(' ').forEach((event) => {
+            if (typeof handler === 'undefined') {
+                self.#eventsListeners[event] = [];
+            } else if (self.#eventsListeners[event]) {
+                self.#eventsListeners[event].forEach((eventHandler, index) => {
+                    if (eventHandler === handler || (eventHandler.emitterProxy && eventHandler.emitterProxy === handler)) {
+                        self.#eventsListeners[event].splice(index, 1);
+                    }
+                });
+            }
+        });
+        return self;
     }
 
     update() {
-        if (this.elements.length) {
-            this.elements.forEach((formElement) => {
-                const activateFormElement = this.params.formSync ? this.elements : formElement;
+        this.#activateForm();
 
-                if (formElement.tagName === 'FORM') {
-                    this.#activateForm(activateFormElement);
-                } else {
-                    throw new Error('SPFormData constructor must be passed a form element');
-                }
-            });
-        }
+        this.#emit('update');
     }
 
     reset() {
-        if (this.elements.length) {
-            this.elements.forEach((formElement) => {
-                formElement.reset();
-            });
-        }
+        this.elements.forEach((formElement) => {
+            formElement.reset();
+        });
+
+        this.#activateForm();
 
         this.#clear();
+
+        this.#emit('reset');
     }
 
     init() {
-        if (this.elements.length) {
-            this.elements.forEach((formElement) => {
-                const activateFormElement = this.params.formSync ? this.elements : formElement;
+        this.#emit('beforeInit', false);
 
-                if (formElement.tagName === 'FORM') {
-                    formElement.addEventListener('submit', (e) => {
-                        e.preventDefault();
+        this.#submit();
 
-                        if (!this.params.autoSubmit) {
-                            this.#activateForm(activateFormElement);
-                        }
-                    });
-
-                    if (this.params.autoSubmit) {
-                        formElement.querySelectorAll('[name]').forEach((element) => {
-                            element.addEventListener('change', () => {
-                                if (this.#submitTimeout) clearTimeout(this.#submitTimeout);
-                                this.#submitTimeout = setTimeout(() => {
-                                    this.#activateForm(activateFormElement);
-                                }, this.params.delayBeforeSend);
-                            });
-                        });
-                    }
-                } else {
-                    throw new Error('SPFormData constructor must be passed a form element');
-                }
-            });
-
-            if (this.params.changeUrlQuery) {
-                window.addEventListener('popstate', () => {
-                    if (window.location.search !== '') {
-                        this.#searchParams();
-                    } else {
-                        this.#clear();
-                    }
-                });
-
-                if (window.location.search !== '') {
-                    this.#searchParams();
-                }
-            }
+        if (this.params.autoSubmit) {
+            this.#autoSubmit();
         }
+
+        this.#popstate();
+
+        this.#searchParamsDefined();
+
+        this.#emit('init');
+        this.#emit('afterInit', false);
+
+        return this;
     }
 }
 
