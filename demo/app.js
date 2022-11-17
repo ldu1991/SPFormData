@@ -1,19 +1,17 @@
 import SPFormData from '../src/core'
 
-/*let filter = document.querySelectorAll('#filter')
+let filter = document.querySelectorAll('#filter')
 
 let SPFD = new SPFormData(filter, {
-    separator: ',',
-    delayBeforeSend: 650,
-    autoSubmit: true,
-    changeUrlQuery: true,
-    presetQueries: ['option', 'search'],
-    on: data => {
-        console.log(data)
-    }
+    //separator: ',',
+    //delayBeforeSend: 650,
+    //autoSubmit: true,
+    changeUrlQuery: false,
+    //presetQueries: ['option', 'search'],
 });
 
-SPFD.on(function (data) {
+SPFD.on('change', data => {
+    console.log('OnFn Change:')
     console.log(data)
 })
 
@@ -23,10 +21,10 @@ if (!!reset) {
     reset.addEventListener('click', () => {
         SPFD.reset()
     })
-}*/
+}
 
 
-let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
+/*let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
     init: false,
     separator: ',',
     delayBeforeSend: 650,
@@ -135,4 +133,4 @@ if (!!resetSync) {
     resetSync.addEventListener('click', () => {
         SPFDSync.reset()
     })
-}
+}*/

@@ -166,9 +166,9 @@ class SPFormData {
     #clear() {
         if (this.params.changeUrlQuery) {
             window.history.pushState({}, '', '.');
-
-            this.query = null;
         }
+
+        this.query = null;
     }
 
     #submit() {

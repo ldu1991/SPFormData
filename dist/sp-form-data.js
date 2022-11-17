@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: November 14, 2022
+ * Released on: November 17, 2022
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -404,8 +404,8 @@ function _activateForm2() {
 function _clear2() {
   if (this.params.changeUrlQuery) {
     window.history.pushState({}, '', '.');
-    this.query = null;
   }
+  this.query = null;
 }
 function _submit2() {
   var _this5 = this;
