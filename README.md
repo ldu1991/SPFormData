@@ -99,8 +99,8 @@ site.com?search=product+name&date=DESC&option=1,2
 |separator|string|","|URL Query Parameters separator
 |delayBeforeSend|number|300|Delay before executing and submitting the form.
 |autoSubmit|boolean|true|Listen for form changes and auto submit
-|changeUrlQuery|boolean|true|Do I need to change the parameters of the URL request
-|presetQueries|array|[...input[name]]|**SPFormData** will compare the search fields from the URL, and return only predefined fields in the request
+|changeQueryParameters|boolean|true|Do I need to change query parameters of the URL request
+|presetQueries|array|[...input[name]]|**SPFormData** will change query parameters and return data, in the order specified in the array of fields
 |multipleArray|boolean|true|Whether the multiple choice will be returned as an array ```(?option=1,2,3,4 => array [1, 2, 3, 4] or string 1,2,3,4)```
 
 

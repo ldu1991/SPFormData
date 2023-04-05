@@ -58,26 +58,14 @@ class SPFormData {
     }
 
     #searchParams() {
-        if (this.params.changeUrlQuery) {
+        if (this.params.changeQueryParameters) {
             const params = new URLSearchParams(window.location.search);
             const query = {};
 
             params.forEach((value, key) => {
-                const { multipleArray, presetQueries, separator } = this.params;
+                const { multipleArray, separator } = this.params;
 
-                if (presetQueries.length) {
-                    if (presetQueries.includes(key) && value !== '') {
-                        if (multipleArray) {
-                            if (value.indexOf(separator) !== -1) {
-                                query[key] = value.split(separator);
-                            } else {
-                                query[key] = value;
-                            }
-                        } else {
-                            query[key] = value;
-                        }
-                    }
-                } else if (value !== '') {
+                if (value !== '') {
                     if (multipleArray) {
                         if (value.indexOf(separator) !== -1) {
                             query[key] = value.split(separator);
@@ -94,17 +82,23 @@ class SPFormData {
         }
     }
 
-    #changeUrlQuery(arr) {
+    #changeQueryParameters(arr) {
         if (!isObject(arr)) {
             const loc = new URL(window.location);
+            const { presetQueries } = this.params;
+
+            // Delete
             Object.keys(arr).forEach((key) => {
                 loc.searchParams.forEach((value, name) => {
                     if (name !== key) loc.searchParams.delete(name);
                 });
             });
 
-            Object.keys(arr).forEach((key) => {
-                loc.searchParams.set(key, arr[key]);
+            // Add
+            presetQueries.forEach((key) => {
+                if (arr.hasOwnProperty(key)) {
+                    loc.searchParams.set(key, arr[key]);
+                }
             });
 
             const url = decodeURIComponent(loc.href);
@@ -119,7 +113,7 @@ class SPFormData {
         this.#emit('change');
     }
 
-    #noChangeUrlQuery(arr) {
+    #noChangeQueryParameters(arr) {
         if (!isObject(arr)) {
             const query = {};
 
@@ -156,15 +150,15 @@ class SPFormData {
             }
         });
 
-        if (this.params.changeUrlQuery) {
-            this.#changeUrlQuery(result);
+        if (this.params.changeQueryParameters) {
+            this.#changeQueryParameters(result);
         } else {
-            this.#noChangeUrlQuery(result);
+            this.#noChangeQueryParameters(result);
         }
     }
 
     #clear() {
-        if (this.params.changeUrlQuery) {
+        if (this.params.changeQueryParameters) {
             window.history.pushState({}, '', '.');
         }
 

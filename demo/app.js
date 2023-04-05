@@ -1,12 +1,12 @@
 import SPFormData from '../src/core'
 
-let filter = document.querySelectorAll('#filter')
+/*let filter = document.querySelectorAll('#filter')
 
 let SPFD = new SPFormData(filter, {
     //separator: ',',
     //delayBeforeSend: 650,
     //autoSubmit: true,
-    changeUrlQuery: false,
+    changeQueryParameters: false,
     //presetQueries: ['option', 'search'],
 });
 
@@ -21,18 +21,18 @@ if (!!reset) {
     reset.addEventListener('click', () => {
         SPFD.reset()
     })
-}
+}*/
 
 
-/*let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
+let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
     init: false,
     separator: ',',
     delayBeforeSend: 650,
     autoSubmit: true,
-    changeUrlQuery: true,
-    presetQueries: [],
+    changeQueryParameters: true,
+    presetQueries: ['option', 'search'],
     multipleArray: true,
-    on: {
+    /*on: {
         init: data => {
             console.warn('Console init:')
             console.log(data)
@@ -63,10 +63,10 @@ if (!!reset) {
             console.log('Console Popstate')
             console.log(data)
         },
-    }
+    }*/
 });
 
-SPFDSync.on('afterInit', () => {
+/*SPFDSync.on('afterInit', () => {
     console.warn('OnFn afterInit')
 })
 SPFDSync.on('init', data => {
@@ -75,7 +75,7 @@ SPFDSync.on('init', data => {
 })
 SPFDSync.on('beforeInit', () => {
     console.warn('OnFn beforeInit')
-})
+})*/
 
 
 SPFDSync.on('change', data => {
@@ -83,7 +83,7 @@ SPFDSync.on('change', data => {
     console.log(data)
 })
 
-SPFDSync.on('update', data => {
+/*SPFDSync.on('update', data => {
     console.log('OnFn Update')
     console.log(data)
 })
@@ -103,7 +103,7 @@ SPFDSync.on('popstate', data => {
 SPFDSync.once('change', data => {
     console.log('---OnceFn Change:')
     console.log(data)
-})
+})*/
 
 SPFDSync.init()
 
@@ -133,4 +133,4 @@ if (!!resetSync) {
     resetSync.addEventListener('click', () => {
         SPFDSync.reset()
     })
-}*/
+}

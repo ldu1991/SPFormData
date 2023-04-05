@@ -3,7 +3,7 @@ export default {
     separator: ',',
     delayBeforeSend: 300,
     autoSubmit: true,
-    changeUrlQuery: true,
+    changeQueryParameters: true,
     presetQueries: [],
     multipleArray: true
 };

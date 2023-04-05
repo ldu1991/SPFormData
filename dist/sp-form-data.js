@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: November 17, 2022
+ * Released on: April 05, 2023
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -127,7 +127,7 @@ var normalizeArray = function normalizeArray(arrDataForm, separator) {
   separator: ',',
   delayBeforeSend: 300,
   autoSubmit: true,
-  changeUrlQuery: true,
+  changeQueryParameters: true,
   presetQueries: [],
   multipleArray: true
 });
@@ -155,8 +155,8 @@ function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.
 var _submitTimeout = /*#__PURE__*/new WeakMap();
 var _eventsListeners = /*#__PURE__*/new WeakMap();
 var _searchParams = /*#__PURE__*/new WeakSet();
-var _changeUrlQuery = /*#__PURE__*/new WeakSet();
-var _noChangeUrlQuery = /*#__PURE__*/new WeakSet();
+var _changeQueryParameters = /*#__PURE__*/new WeakSet();
+var _noChangeQueryParameters = /*#__PURE__*/new WeakSet();
 var _activateForm = /*#__PURE__*/new WeakSet();
 var _clear = /*#__PURE__*/new WeakSet();
 var _submit = /*#__PURE__*/new WeakSet();
@@ -175,8 +175,8 @@ var SPFormData = /*#__PURE__*/function () {
     _classPrivateMethodInitSpec(this, _submit);
     _classPrivateMethodInitSpec(this, _clear);
     _classPrivateMethodInitSpec(this, _activateForm);
-    _classPrivateMethodInitSpec(this, _noChangeUrlQuery);
-    _classPrivateMethodInitSpec(this, _changeUrlQuery);
+    _classPrivateMethodInitSpec(this, _noChangeQueryParameters);
+    _classPrivateMethodInitSpec(this, _changeQueryParameters);
     _classPrivateMethodInitSpec(this, _searchParams);
     _classPrivateFieldInitSpec(this, _submitTimeout, {
       writable: true,
@@ -307,27 +307,14 @@ var SPFormData = /*#__PURE__*/function () {
 }();
 function _searchParams2() {
   var _this2 = this;
-  if (this.params.changeUrlQuery) {
+  if (this.params.changeQueryParameters) {
     var params = new URLSearchParams(window.location.search);
     var query = {};
     params.forEach(function (value, key) {
       var _this2$params = _this2.params,
         multipleArray = _this2$params.multipleArray,
-        presetQueries = _this2$params.presetQueries,
         separator = _this2$params.separator;
-      if (presetQueries.length) {
-        if (presetQueries.includes(key) && value !== '') {
-          if (multipleArray) {
-            if (value.indexOf(separator) !== -1) {
-              query[key] = value.split(separator);
-            } else {
-              query[key] = value;
-            }
-          } else {
-            query[key] = value;
-          }
-        }
-      } else if (value !== '') {
+      if (value !== '') {
         if (multipleArray) {
           if (value.indexOf(separator) !== -1) {
             query[key] = value.split(separator);
@@ -342,16 +329,23 @@ function _searchParams2() {
     this.query = !isObject(query) ? query : null;
   }
 }
-function _changeUrlQuery2(arr) {
+function _changeQueryParameters2(arr) {
   if (!isObject(arr)) {
     var loc = new URL(window.location);
+    var presetQueries = this.params.presetQueries;
+
+    // Delete
     Object.keys(arr).forEach(function (key) {
       loc.searchParams.forEach(function (value, name) {
         if (name !== key) loc.searchParams.delete(name);
       });
     });
-    Object.keys(arr).forEach(function (key) {
-      loc.searchParams.set(key, arr[key]);
+
+    // Add
+    presetQueries.forEach(function (key) {
+      if (arr.hasOwnProperty(key)) {
+        loc.searchParams.set(key, arr[key]);
+      }
     });
     var url = decodeURIComponent(loc.href);
     window.history.pushState({}, '', url);
@@ -361,7 +355,7 @@ function _changeUrlQuery2(arr) {
   }
   _classPrivateMethodGet(this, _emit, _emit2).call(this, 'change');
 }
-function _noChangeUrlQuery2(arr) {
+function _noChangeQueryParameters2(arr) {
   var _this3 = this;
   if (!isObject(arr)) {
     var query = {};
@@ -395,14 +389,14 @@ function _activateForm2() {
       _classPrivateMethodGet(_this4, _clear, _clear2).call(_this4);
     }
   });
-  if (this.params.changeUrlQuery) {
-    _classPrivateMethodGet(this, _changeUrlQuery, _changeUrlQuery2).call(this, result);
+  if (this.params.changeQueryParameters) {
+    _classPrivateMethodGet(this, _changeQueryParameters, _changeQueryParameters2).call(this, result);
   } else {
-    _classPrivateMethodGet(this, _noChangeUrlQuery, _noChangeUrlQuery2).call(this, result);
+    _classPrivateMethodGet(this, _noChangeQueryParameters, _noChangeQueryParameters2).call(this, result);
   }
 }
 function _clear2() {
-  if (this.params.changeUrlQuery) {
+  if (this.params.changeQueryParameters) {
     window.history.pushState({}, '', '.');
   }
   this.query = null;
