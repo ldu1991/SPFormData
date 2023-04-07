@@ -1,6 +1,8 @@
 # SPFormData
 
-VanillaJS (_pure JavaScript_) plugin that reads form data and Change **URL Query Parameters**
+VanillaJS (_pure JavaScript_) plugin that reads form data and Change **URL Query Parameters**, works with all types of fields
+
+**Note:** SPFormData does not work with field type "file"!
 
 ## Install:
 
@@ -14,36 +16,60 @@ npm install --save sp-form-data
 
 ```html
 
-<form id="filter">
-    <label>
-        <input type="text" name="search" placeholder="Search...">
-    </label>
+<form id="filter-sync">
+    <label for="text-field">Text field:</label>
+    <input type="text" id="text-field" name="text" required>
+    
+    <label for="email-field">Email field:</label>
+    <input type="email" id="email-field" name="email" required>
+    
+    <label for="password-field">Password field:</label>
+    <input type="password" id="password-field" name="password" required>
 
     <label>
-        <input type="radio" name="date" value="ASC"/>
-        <span>Date: Ascending</span>
+        <span>Checkbox 1</span>
+        <input type="checkbox" name="checkbox" value="1"/>
     </label>
     <label>
-        <input type="radio" name="date" value="DESC"/>
-        <span>Date: Descending</span>
+        <span>Checkbox 2</span>
+        <input type="checkbox" name="checkbox" value="2"/>
+    </label>
+    <label>
+        <span>Checkbox 3</span>
+        <input type="checkbox" name="checkbox" value="3"/>
+    </label>
+    <label>
+        <span>Checkbox 4</span>
+        <input type="checkbox" name="checkbox" value="4"/>
     </label>
 
-    <label>
-        <span>1</span>
-        <input type="checkbox" name="option" value="1"/>
-    </label>
-    <label>
-        <span>2</span>
-        <input type="checkbox" name="option" value="2"/>
-    </label>
-    <label>
-        <span>3</span>
-        <input type="checkbox" name="option" value="3"/>
-    </label>
-    <label>
-        <span>4</span>
-        <input type="checkbox" name="option" value="4"/>
-    </label>
+    <div>Radio:</div>
+    <input type="radio" id="radio-button1" name="radio" value="1">
+    <label for="radio-button1">Option 1</label>
+    <input type="radio" id="radio-button2" name="radio" value="2">
+    <label for="radio-button2">Option 2</label>
+    <input type="radio" id="radio-button3" name="radio" value="3">
+    <label for="radio-button3">Option 3</label>
+    
+    <label for="dropdown">Dropdown:</label>
+    <select id="dropdown" name="dropdown">
+        <option value="">No Option</option>
+        <option value="1">Option 1</option>
+        <option value="2">Option 2</option>
+        <option value="3">Option 3</option>
+    </select>
+
+    <label for="textarea">Multiline text field:</label>
+    <textarea id="textarea" name="textarea"></textarea>
+
+    <label for="range">Value range:</label>
+    <input type="range" id="range" name="range" min="0" max="100" step="1">
+
+    <label for="datetime">Date and time:</label>
+    <input type="datetime-local" id="datetime" name="datetime">
+
+    <label for="color">Color palette:</label>
+    <input type="color" id="color" name="color">
 
     <!-- Submit button, needed if option autoSubmit: false -->
     <input type="submit" value="submit">
@@ -113,6 +139,9 @@ site.com?search=product+name&date=DESC&option=1,2
 |SPFD.on(event, handler)|Add event handler|
 |SPFD.once(event, handler)|Add event handler that will be removed after it was fired|
 |SPFD.off(event, handler)|Remove event handler|
+|SPFD.setValue(name, value)|(name: object Node or String) Sets the field value by its "name" attribute or object Node. <br>**Note: Doesn't work with "checkbox" and "radio" field types!** <br> **Note 2: "value" is required!** <br> `SPFD.setValue('size', 'Lorem ipsum dolor.') or SPFD.setValue(document.querySelector('#filter [name="size"]'), 'Lorem ipsum dolor.')`|
+|SPFD.setChecked(name, value)|(name: object Node or String) Checked input type checkbox or radio. <br> **Note: "value" is required if string name is used!** <br> `SPFD.setValue('size', 3) or SPFD.setValue(document.querySelector('#filter [name="size"]'), 3) or SPFD.setValue(document.querySelector('#filter [name="size"]'))`
+
 
 
 ### Events

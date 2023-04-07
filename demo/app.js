@@ -1,6 +1,6 @@
 import SPFormData from '../src/core'
 
-/*let filter = document.querySelectorAll('#filter')
+let filter = document.querySelectorAll('#filter')
 
 let SPFD = new SPFormData(filter, {
     //separator: ',',
@@ -21,7 +21,7 @@ if (!!reset) {
     reset.addEventListener('click', () => {
         SPFD.reset()
     })
-}*/
+}
 
 
 let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
@@ -30,7 +30,7 @@ let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
     delayBeforeSend: 650,
     autoSubmit: true,
     changeQueryParameters: true,
-    presetQueries: ['option', 'search'],
+    presetQueries: ['color', 'range', 'dropdown'],
     multipleArray: true,
     /*on: {
         init: data => {
@@ -78,7 +78,7 @@ SPFDSync.on('beforeInit', () => {
 })*/
 
 
-SPFDSync.on('change', data => {
+SPFDSync.on('change init', data => {
     console.log('OnFn Change:')
     console.log(data)
 })
@@ -107,25 +107,21 @@ SPFDSync.once('change', data => {
 
 SPFDSync.init()
 
-let page = 2
+let page = 1
 let nextPage = document.querySelector('.next-page')
 let prevPage = document.querySelector('.prev-page')
 let resetSync = document.querySelector('.reset-sync')
 
 if (!!nextPage) {
     nextPage.addEventListener('click', () => {
-        document.querySelector('[name="paged"]').value = page
         page++
-
-        SPFDSync.update()
+        SPFDSync.setValue(document.querySelector('[name="paged"]'), page)
     })
 }
 if (!!prevPage) {
     prevPage.addEventListener('click', () => {
-        document.querySelector('[name="paged"]').value = page
         page--
-
-        SPFDSync.update()
+        SPFDSync.setValue('paged', page)
     })
 }
 

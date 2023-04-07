@@ -1,7 +1,7 @@
 import convertToArray from './helpers/convertToArray';
 import serializeArray from './helpers/serializeArray';
 import normalizeArray from './helpers/normalizeArray';
-import { isValid, isObject } from './helpers/utils';
+import { isValid, isObject, isNode } from './helpers/utils';
 import defaults from './helpers/defaults';
 
 class SPFormData {
@@ -25,7 +25,7 @@ class SPFormData {
 
         this.elements = convertToArray(el);
 
-        if (!this.elements.length) throw new Error('Form not defined');
+        if (!this.elements.length) return;
 
         if (params.presetQueries === undefined && this.elements.length) {
             params.presetQueries = [];
@@ -182,12 +182,14 @@ class SPFormData {
     #autoSubmit() {
         this.elements.forEach((formElement) => {
             formElement.querySelectorAll('[name]').forEach((element) => {
-                element.addEventListener('change', () => {
-                    if (this.#submitTimeout) clearTimeout(this.#submitTimeout);
-                    this.#submitTimeout = setTimeout(() => {
-                        this.#activateForm();
-                    }, this.params.delayBeforeSend);
-                });
+                if(element.type !== 'file') {
+                    element.addEventListener('change', () => {
+                        if (this.#submitTimeout) clearTimeout(this.#submitTimeout);
+                        this.#submitTimeout = setTimeout(() => {
+                            this.#activateForm();
+                        }, this.params.delayBeforeSend);
+                    });
+                }
             });
         });
     }
@@ -297,6 +299,52 @@ class SPFormData {
         this.#clear();
 
         this.#emit('reset');
+    }
+
+    setValue(name, value) {
+        let element;
+        if (typeof name === 'string') {
+            this.elements.forEach((formElement) => {
+                const nameElement = formElement.querySelector(`[name="${name}"]`);
+                if (nameElement) element = nameElement;
+            });
+        } else if (isNode(name)) {
+            element = name;
+        }
+
+        if (element && (element.type !== 'checkbox' || element.type !== 'radio' || element.type !== 'file')) {
+            if (value) {
+                element.value = value;
+            } else {
+                throw new Error('setValue(name, value) "value" is required!');
+            }
+
+            this.#activateForm();
+        }
+    }
+
+    setChecked(name, value) {
+        let element;
+        if (typeof name === 'string') {
+            this.elements.forEach((formElement) => {
+                let nameElement;
+                if (value) {
+                    nameElement = formElement.querySelector(`[name="${name}"][value="${value}"]`);
+                } else {
+                    throw new Error('setChecked(name, value) "value" is required if string name is used!');
+                }
+
+                if (nameElement) element = nameElement;
+            });
+        } else if (isNode(name)) {
+            element = name;
+        }
+
+        if (element && (element.type === 'checkbox' || element.type === 'radio')) {
+            element.checked = true;
+
+            this.#activateForm();
+        }
     }
 
     init() {
