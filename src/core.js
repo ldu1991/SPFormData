@@ -182,7 +182,7 @@ class SPFormData {
     #autoSubmit() {
         this.elements.forEach((formElement) => {
             formElement.querySelectorAll('[name]').forEach((element) => {
-                if(element.type !== 'file') {
+                if (element.type !== 'file') {
                     element.addEventListener('change', () => {
                         if (this.#submitTimeout) clearTimeout(this.#submitTimeout);
                         this.#submitTimeout = setTimeout(() => {

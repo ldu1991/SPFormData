@@ -1,5 +1,5 @@
 /*!
- * SPFormData 3.0.1
+ * SPFormData 4.0.0
  * VanillaJS (pure JavaScript) plugin that reads form data and Change URL Query Parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: April 05, 2023
+ * Released on: April 07, 2023
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -93,29 +93,29 @@ var convertToArray = function convertToArray(elements) {
 };
 /* harmony default export */ var helpers_convertToArray = (convertToArray);
 ;// CONCATENATED MODULE: ./src/helpers/serializeArray.js
+
 var serializeArray = function serializeArray(formElement) {
   var formData = new FormData(formElement);
   var pairs = [];
   formData.forEach(function (value, name) {
-    pairs.push({
-      name,
-      value
-    });
+    if (!isEmpty(value) && formElement.querySelector("[name=\"".concat(name, "\"]")).type !== 'file') {
+      pairs.push({
+        name,
+        value
+      });
+    }
   });
   return pairs;
 };
 /* harmony default export */ var helpers_serializeArray = (serializeArray);
 ;// CONCATENATED MODULE: ./src/helpers/normalizeArray.js
-
 var normalizeArray = function normalizeArray(arrDataForm, separator) {
   var result = {};
   arrDataForm.forEach(function (item) {
-    if (!isEmpty(item.value)) {
-      if (!result.hasOwnProperty(item.name)) {
-        result[item.name] = item.value;
-      } else {
-        result[item.name] += separator + item.value;
-      }
+    if (!result.hasOwnProperty(item.name)) {
+      result[item.name] = encodeURIComponent(item.value);
+    } else {
+      result[item.name] += separator + encodeURIComponent(item.value);
     }
   });
   return result;
@@ -201,7 +201,7 @@ var SPFormData = /*#__PURE__*/function () {
     }
     if (!_params) _params = {};
     this.elements = helpers_convertToArray(el);
-    if (!this.elements.length) throw new Error('Form not defined');
+    if (!this.elements.length) return;
     if (_params.presetQueries === undefined && this.elements.length) {
       _params.presetQueries = [];
       this.elements.forEach(function (formElement) {
@@ -287,6 +287,49 @@ var SPFormData = /*#__PURE__*/function () {
       _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
       _classPrivateMethodGet(this, _clear, _clear2).call(this);
       _classPrivateMethodGet(this, _emit, _emit2).call(this, 'reset');
+    }
+  }, {
+    key: "setValue",
+    value: function setValue(name, value) {
+      var element;
+      if (typeof name === 'string') {
+        this.elements.forEach(function (formElement) {
+          var nameElement = formElement.querySelector("[name=\"".concat(name, "\"]"));
+          if (nameElement) element = nameElement;
+        });
+      } else if (isNode(name)) {
+        element = name;
+      }
+      if (element && (element.type !== 'checkbox' || element.type !== 'radio' || element.type !== 'file')) {
+        if (value) {
+          element.value = value;
+        } else {
+          throw new Error('setValue(name, value) "value" is required!');
+        }
+        _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
+      }
+    }
+  }, {
+    key: "setChecked",
+    value: function setChecked(name, value) {
+      var element;
+      if (typeof name === 'string') {
+        this.elements.forEach(function (formElement) {
+          var nameElement;
+          if (value) {
+            nameElement = formElement.querySelector("[name=\"".concat(name, "\"][value=\"").concat(value, "\"]"));
+          } else {
+            throw new Error('setChecked(name, value) "value" is required if string name is used!');
+          }
+          if (nameElement) element = nameElement;
+        });
+      } else if (isNode(name)) {
+        element = name;
+      }
+      if (element && (element.type === 'checkbox' || element.type === 'radio')) {
+        element.checked = true;
+        _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
+      }
     }
   }, {
     key: "init",
@@ -417,12 +460,14 @@ function _autoSubmit2() {
   var _this6 = this;
   this.elements.forEach(function (formElement) {
     formElement.querySelectorAll('[name]').forEach(function (element) {
-      element.addEventListener('change', function () {
-        if (_classPrivateFieldGet(_this6, _submitTimeout)) clearTimeout(_classPrivateFieldGet(_this6, _submitTimeout));
-        _classPrivateFieldSet(_this6, _submitTimeout, setTimeout(function () {
-          _classPrivateMethodGet(_this6, _activateForm, _activateForm2).call(_this6);
-        }, _this6.params.delayBeforeSend));
-      });
+      if (element.type !== 'file') {
+        element.addEventListener('change', function () {
+          if (_classPrivateFieldGet(_this6, _submitTimeout)) clearTimeout(_classPrivateFieldGet(_this6, _submitTimeout));
+          _classPrivateFieldSet(_this6, _submitTimeout, setTimeout(function () {
+            _classPrivateMethodGet(_this6, _activateForm, _activateForm2).call(_this6);
+          }, _this6.params.delayBeforeSend));
+        });
+      }
     });
   });
 }
