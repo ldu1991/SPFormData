@@ -143,7 +143,6 @@ site.com?search=product+name&date=DESC&option=1,2
 |SPFD.setChecked(name, value)|(name: object Node or String) Checked input type checkbox or radio. <br> **Note: "value" is required if string name is used!** <br> `SPFD.setValue('size', 3) or SPFD.setValue(document.querySelector('#filter [name="size"]'), 3) or SPFD.setValue(document.querySelector('#filter [name="size"]'))`
 
 
-
 ### Events
 
 |Event name|Arguments|Description|

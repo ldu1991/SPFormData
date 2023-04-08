@@ -1,7 +1,7 @@
 import convertToArray from './helpers/convertToArray';
 import serializeArray from './helpers/serializeArray';
 import normalizeArray from './helpers/normalizeArray';
-import { isValid, isObject, isNode } from './helpers/utils';
+import {isValid, isObject, isNode, isEmpty} from './helpers/utils';
 import defaults from './helpers/defaults';
 
 class SPFormData {
@@ -65,15 +65,15 @@ class SPFormData {
             params.forEach((value, key) => {
                 const { multipleArray, separator } = this.params;
 
-                if (value !== '') {
+                if (!isEmpty(value)) {
                     if (multipleArray) {
                         if (value.indexOf(separator) !== -1) {
-                            query[key] = value.split(separator);
+                            query[key] = value.replace(/\+/g, ' ').split(separator);
                         } else {
-                            query[key] = value;
+                            query[key] = value.replace(/\+/g, ' ');
                         }
                     } else {
-                        query[key] = value;
+                        query[key] = value.replace(/\+/g, ' ');
                     }
                 }
             });
@@ -118,15 +118,17 @@ class SPFormData {
             const query = {};
 
             Object.keys(arr).forEach((pair) => {
-                if (arr[pair] !== '') {
+                if (!isEmpty(arr[pair])) {
                     if (this.params.multipleArray) {
                         if (arr[pair].indexOf(this.params.separator) !== -1) {
-                            query[pair] = arr[pair].split(this.params.separator);
+                            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(this.params.separator);
                         } else {
-                            query[pair] = arr[pair];
+                            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
                         }
+
+                        console.log(arr[pair])
                     } else {
-                        query[pair] = arr[pair];
+                        query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
                     }
                 }
             });
@@ -196,7 +198,7 @@ class SPFormData {
 
     #popstate() {
         window.addEventListener('popstate', () => {
-            if (window.location.search !== '') {
+            if (!isEmpty(window.location.search)) {
                 this.#searchParams();
             } else {
                 this.#clear();
@@ -207,7 +209,7 @@ class SPFormData {
     }
 
     #searchParamsDefined() {
-        if (window.location.search !== '') {
+        if (!isEmpty(window.location.search)) {
             this.#searchParams();
         }
     }

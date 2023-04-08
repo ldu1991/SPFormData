@@ -2,9 +2,9 @@ const normalizeArray = (arrDataForm, separator) => {
     const result = {};
     arrDataForm.forEach((item) => {
         if (!result.hasOwnProperty(item.name)) {
-            result[item.name] = encodeURIComponent(item.value);
+            result[item.name] = encodeURIComponent(item.value.replace(/ /g, '+'));
         } else {
-            result[item.name] += separator + encodeURIComponent(item.value);
+            result[item.name] += separator + encodeURIComponent(item.value.replace(/ /g, '+'));
         }
     });
 
