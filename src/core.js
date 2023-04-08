@@ -1,7 +1,7 @@
 import convertToArray from './helpers/convertToArray';
 import serializeArray from './helpers/serializeArray';
 import normalizeArray from './helpers/normalizeArray';
-import {isValid, isObject, isNode, isEmpty} from './helpers/utils';
+import { isValid, isObject, isNode, isEmpty } from './helpers/utils';
 import defaults from './helpers/defaults';
 
 class SPFormData {
@@ -125,8 +125,6 @@ class SPFormData {
                         } else {
                             query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
                         }
-
-                        console.log(arr[pair])
                     } else {
                         query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
                     }

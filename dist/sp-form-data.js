@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: April 07, 2023
+ * Released on: April 08, 2023
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -113,9 +113,9 @@ var normalizeArray = function normalizeArray(arrDataForm, separator) {
   var result = {};
   arrDataForm.forEach(function (item) {
     if (!result.hasOwnProperty(item.name)) {
-      result[item.name] = encodeURIComponent(item.value);
+      result[item.name] = encodeURIComponent(item.value.replace(/ /g, '+'));
     } else {
-      result[item.name] += separator + encodeURIComponent(item.value);
+      result[item.name] += separator + encodeURIComponent(item.value.replace(/ /g, '+'));
     }
   });
   return result;
@@ -357,15 +357,15 @@ function _searchParams2() {
       var _this2$params = _this2.params,
         multipleArray = _this2$params.multipleArray,
         separator = _this2$params.separator;
-      if (value !== '') {
+      if (!isEmpty(value)) {
         if (multipleArray) {
           if (value.indexOf(separator) !== -1) {
-            query[key] = value.split(separator);
+            query[key] = value.replace(/\+/g, ' ').split(separator);
           } else {
-            query[key] = value;
+            query[key] = value.replace(/\+/g, ' ');
           }
         } else {
-          query[key] = value;
+          query[key] = value.replace(/\+/g, ' ');
         }
       }
     });
@@ -403,15 +403,15 @@ function _noChangeQueryParameters2(arr) {
   if (!isObject(arr)) {
     var query = {};
     Object.keys(arr).forEach(function (pair) {
-      if (arr[pair] !== '') {
+      if (!isEmpty(arr[pair])) {
         if (_this3.params.multipleArray) {
           if (arr[pair].indexOf(_this3.params.separator) !== -1) {
-            query[pair] = arr[pair].split(_this3.params.separator);
+            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(_this3.params.separator);
           } else {
-            query[pair] = arr[pair];
+            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
           }
         } else {
-          query[pair] = arr[pair];
+          query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
         }
       }
     });
@@ -474,7 +474,7 @@ function _autoSubmit2() {
 function _popstate2() {
   var _this7 = this;
   window.addEventListener('popstate', function () {
-    if (window.location.search !== '') {
+    if (!isEmpty(window.location.search)) {
       _classPrivateMethodGet(_this7, _searchParams, _searchParams2).call(_this7);
     } else {
       _classPrivateMethodGet(_this7, _clear, _clear2).call(_this7);
@@ -483,7 +483,7 @@ function _popstate2() {
   });
 }
 function _searchParamsDefined2() {
-  if (window.location.search !== '') {
+  if (!isEmpty(window.location.search)) {
     _classPrivateMethodGet(this, _searchParams, _searchParams2).call(this);
   }
 }
