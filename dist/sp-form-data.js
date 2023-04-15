@@ -1,5 +1,5 @@
 /*!
- * SPFormData 4.0.1
+ * SPFormData 4.0.2
  * VanillaJS (pure JavaScript) plugin that reads form data and Change URL Query Parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: April 08, 2023
+ * Released on: April 15, 2023
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -52,7 +52,7 @@ __webpack_require__.d(__webpack_exports__, {
 
 ;// CONCATENATED MODULE: ./src/helpers/utils.js
 function isNode(x) {
-  return typeof window.Node === 'object' ? x instanceof window.Node : x !== null && typeof x === 'object' && typeof x.nodeType === 'number' && typeof x.nodeName === 'string';
+  return typeof x === 'object' && x !== null && x.nodeType !== undefined && x.nodeName !== undefined && window.Node.prototype.isPrototypeOf(x);
 }
 function isNodeList(x) {
   var prototypeToString = Object.prototype.toString.call(x);
@@ -63,31 +63,27 @@ function isValid(str) {
   return /^[|,]+$/.test(str);
 }
 function isEmpty(value) {
-  return !value || !/[^\s]+/.test(value);
+  return typeof value !== 'string' || !value || !value.trim();
 }
 function isObject(obj) {
-  return obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype;
+  return obj !== null && Object.getOwnPropertyNames(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype;
 }
 
 ;// CONCATENATED MODULE: ./src/helpers/convertToArray.js
 
 var convertToArray = function convertToArray(elements) {
-  if (elements instanceof Array) {
+  if (Array.isArray(elements)) {
     return elements.filter(isNode);
   }
   if (isNode(elements)) {
     return [elements];
   }
   if (isNodeList(elements)) {
-    return Array.prototype.slice.call(elements);
+    return Array.from(elements);
   }
   if (typeof elements === 'string') {
-    try {
-      var query = document.querySelectorAll(elements);
-      return Array.prototype.slice.call(query);
-    } catch (err) {
-      return [];
-    }
+    var query = document.querySelectorAll(elements);
+    return Array.from(query);
   }
   return [];
 };
@@ -205,12 +201,12 @@ var SPFormData = /*#__PURE__*/function () {
     if (_params.presetQueries === undefined && this.elements.length) {
       _params.presetQueries = [];
       this.elements.forEach(function (formElement) {
+        if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a FORM element');
         formElement.querySelectorAll('[name]').forEach(function (element) {
           if (!_params.presetQueries.includes(element.name)) {
             _params.presetQueries.push(element.name);
           }
         });
-        if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a form element');
       });
     }
     this.params = _objectSpread(_objectSpread({}, defaults), _params);
@@ -275,12 +271,14 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "update",
     value: function update() {
+      if (!this.elements.length) return;
       _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
       _classPrivateMethodGet(this, _emit, _emit2).call(this, 'update');
     }
   }, {
     key: "reset",
     value: function reset() {
+      if (!this.elements.length) return;
       this.elements.forEach(function (formElement) {
         formElement.reset();
       });
@@ -291,6 +289,7 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "setValue",
     value: function setValue(name, value) {
+      if (!this.elements.length) return;
       var element;
       if (typeof name === 'string') {
         this.elements.forEach(function (formElement) {
@@ -312,6 +311,7 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "setChecked",
     value: function setChecked(name, value) {
+      if (!this.elements.length) return;
       var element;
       if (typeof name === 'string') {
         this.elements.forEach(function (formElement) {
@@ -334,6 +334,7 @@ var SPFormData = /*#__PURE__*/function () {
   }, {
     key: "init",
     value: function init() {
+      if (!this.elements.length) return;
       _classPrivateMethodGet(this, _emit, _emit2).call(this, 'beforeInit', false);
       _classPrivateMethodGet(this, _submit, _submit2).call(this);
       if (this.params.autoSubmit) {
@@ -343,7 +344,6 @@ var SPFormData = /*#__PURE__*/function () {
       _classPrivateMethodGet(this, _searchParamsDefined, _searchParamsDefined2).call(this);
       _classPrivateMethodGet(this, _emit, _emit2).call(this, 'init');
       _classPrivateMethodGet(this, _emit, _emit2).call(this, 'afterInit', false);
-      return this;
     }
   }]);
   return SPFormData;
