@@ -1,5 +1,5 @@
 /*!
- * SPFormData 4.0.2
+ * SPFormData 4.0.3
  * VanillaJS (pure JavaScript) plugin that reads form data and Change URL Query Parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
@@ -137,9 +137,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
 function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 function _classPrivateFieldGet(receiver, privateMap) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
 function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
-function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 function _classPrivateFieldSet(receiver, privateMap, value) { var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
 function _classExtractFieldDescriptor(receiver, privateMap, action) { if (!privateMap.has(receiver)) { throw new TypeError("attempted to " + action + " private field on non-instance"); } return privateMap.get(receiver); }
 function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
@@ -150,6 +150,7 @@ function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.
 
 var _submitTimeout = /*#__PURE__*/new WeakMap();
 var _eventsListeners = /*#__PURE__*/new WeakMap();
+var _innerPresetQueries = /*#__PURE__*/new WeakMap();
 var _searchParams = /*#__PURE__*/new WeakSet();
 var _changeQueryParameters = /*#__PURE__*/new WeakSet();
 var _noChangeQueryParameters = /*#__PURE__*/new WeakSet();
@@ -182,8 +183,13 @@ var SPFormData = /*#__PURE__*/function () {
       writable: true,
       value: void 0
     });
+    _classPrivateFieldInitSpec(this, _innerPresetQueries, {
+      writable: true,
+      value: void 0
+    });
     _classPrivateFieldSet(this, _submitTimeout, true);
     _classPrivateFieldSet(this, _eventsListeners, {});
+    _classPrivateFieldSet(this, _innerPresetQueries, []);
     var el;
     var _params;
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -198,7 +204,9 @@ var SPFormData = /*#__PURE__*/function () {
     if (!_params) _params = {};
     this.elements = helpers_convertToArray(el);
     if (!this.elements.length) return;
-    if (_params.presetQueries === undefined && this.elements.length) {
+    if (_params.presetQueries !== undefined && !Array.isArray(_params.presetQueries)) throw new Error('"presetQueries" parameter must be an Array');
+    _classPrivateFieldSet(this, _innerPresetQueries, _params.presetQueries);
+    if (_classPrivateFieldGet(this, _innerPresetQueries) === undefined) {
       _params.presetQueries = [];
       this.elements.forEach(function (formElement) {
         if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a FORM element');
@@ -459,7 +467,16 @@ function _submit2() {
 function _autoSubmit2() {
   var _this6 = this;
   this.elements.forEach(function (formElement) {
-    formElement.querySelectorAll('[name]').forEach(function (element) {
+    var nameElements = '[name]';
+    if (_classPrivateFieldGet(_this6, _innerPresetQueries) !== undefined) {
+      var presetQueries = _this6.params.presetQueries;
+      var inputElements = [];
+      presetQueries.forEach(function (key) {
+        inputElements.push("[name=\"".concat(key, "\"]"));
+      });
+      nameElements = inputElements.join(',');
+    }
+    formElement.querySelectorAll(nameElements).forEach(function (element) {
       if (element.type !== 'file') {
         element.addEventListener('change', function () {
           if (_classPrivateFieldGet(_this6, _submitTimeout)) clearTimeout(_classPrivateFieldGet(_this6, _submitTimeout));
