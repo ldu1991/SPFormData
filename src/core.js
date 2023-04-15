@@ -9,9 +9,12 @@ class SPFormData {
 
     #eventsListeners;
 
+    #innerPresetQueries;
+
     constructor(...args) {
         this.#submitTimeout = true;
         this.#eventsListeners = {};
+        this.#innerPresetQueries = [];
 
         let el;
         let params;
@@ -27,7 +30,11 @@ class SPFormData {
 
         if (!this.elements.length) return;
 
-        if (params.presetQueries === undefined && this.elements.length) {
+        if (params.presetQueries !== undefined && !Array.isArray(params.presetQueries)) throw new Error('"presetQueries" parameter must be an Array');
+
+        this.#innerPresetQueries = params.presetQueries;
+
+        if (this.#innerPresetQueries === undefined) {
             params.presetQueries = [];
             this.elements.forEach((formElement) => {
                 if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a FORM element');
@@ -181,7 +188,19 @@ class SPFormData {
 
     #autoSubmit() {
         this.elements.forEach((formElement) => {
-            formElement.querySelectorAll('[name]').forEach((element) => {
+            let nameElements = '[name]';
+
+            if (this.#innerPresetQueries !== undefined) {
+                const { presetQueries } = this.params;
+                const inputElements = [];
+                presetQueries.forEach((key) => {
+                    inputElements.push(`[name="${key}"]`);
+                });
+
+                nameElements = inputElements.join(',');
+            }
+
+            formElement.querySelectorAll(nameElements).forEach((element) => {
                 if (element.type !== 'file') {
                     element.addEventListener('change', () => {
                         if (this.#submitTimeout) clearTimeout(this.#submitTimeout);
