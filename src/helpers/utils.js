@@ -1,7 +1,5 @@
 function isNode(x) {
-    return typeof window.Node === 'object'
-        ? x instanceof window.Node
-        : x !== null && typeof x === 'object' && typeof x.nodeType === 'number' && typeof x.nodeName === 'string';
+    return typeof x === 'object' && x !== null && x.nodeType !== undefined && x.nodeName !== undefined && window.Node.prototype.isPrototypeOf(x);
 }
 
 function isNodeList(x) {
@@ -18,11 +16,11 @@ function isValid(str) {
 }
 
 function isEmpty(value) {
-    return !value || !/[^\s]+/.test(value);
+    return typeof value !== 'string' || !value || !value.trim();
 }
 
 function isObject(obj) {
-    return obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype;
+    return obj !== null && Object.getOwnPropertyNames(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype;
 }
 
 export { isNode, isNodeList, isValid, isEmpty, isObject };

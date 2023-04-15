@@ -30,13 +30,13 @@ class SPFormData {
         if (params.presetQueries === undefined && this.elements.length) {
             params.presetQueries = [];
             this.elements.forEach((formElement) => {
+                if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a FORM element');
+
                 formElement.querySelectorAll('[name]').forEach((element) => {
                     if (!params.presetQueries.includes(element.name)) {
                         params.presetQueries.push(element.name);
                     }
                 });
-
-                if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a form element');
             });
         }
 
@@ -284,12 +284,16 @@ class SPFormData {
     }
 
     update() {
+        if (!this.elements.length) return;
+
         this.#activateForm();
 
         this.#emit('update');
     }
 
     reset() {
+        if (!this.elements.length) return;
+
         this.elements.forEach((formElement) => {
             formElement.reset();
         });
@@ -302,6 +306,8 @@ class SPFormData {
     }
 
     setValue(name, value) {
+        if (!this.elements.length) return;
+
         let element;
         if (typeof name === 'string') {
             this.elements.forEach((formElement) => {
@@ -324,6 +330,8 @@ class SPFormData {
     }
 
     setChecked(name, value) {
+        if (!this.elements.length) return;
+
         let element;
         if (typeof name === 'string') {
             this.elements.forEach((formElement) => {
@@ -348,6 +356,8 @@ class SPFormData {
     }
 
     init() {
+        if (!this.elements.length) return;
+
         this.#emit('beforeInit', false);
 
         this.#submit();
@@ -362,8 +372,6 @@ class SPFormData {
 
         this.#emit('init');
         this.#emit('afterInit', false);
-
-        return this;
     }
 }
 
