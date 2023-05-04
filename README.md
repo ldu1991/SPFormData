@@ -128,6 +128,7 @@ site.com?search=product+name&date=DESC&option=1,2
 |changeQueryParameters|boolean|true|Do I need to change query parameters of the URL request
 |presetQueries|array|[...input[name]]|**SPFormData** will change query parameters and return data, in the order specified in the array of fields
 |multipleArray|boolean|true|Whether the multiple choice will be returned as an array ```(?option=1,2,3,4 => array [1, 2, 3, 4] or string 1,2,3,4)```
+|secondForm|string<br>array<br>node<br>nodeList<br>nodeArray|null|Secondary forms, such as a pagination form, etc.<br>**Note: when updating the main form, all secondary forms are brought to the default state**
 
 
 ### Methods
