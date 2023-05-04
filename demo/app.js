@@ -24,13 +24,14 @@ if (!!reset) {
 }
 
 
-let SPFDSync = new SPFormData('#filter-sync, #pagination-sync', {
+let SPFDSync = new SPFormData('#filter-sync', {
     init: false,
     separator: ',',
     delayBeforeSend: 650,
     autoSubmit: true,
     changeQueryParameters: true,
-    presetQueries: ['color', 'range', 'dropdown'],
+    secondForm: '#pagination-sync, #pagination-sync-2'
+    //presetQueries: ['color', 'range', 'dropdown'],
     //multipleArray: false,
     /*on: {
         init: data => {
@@ -78,7 +79,7 @@ SPFDSync.on('beforeInit', () => {
 })*/
 
 
-SPFDSync.on('change init', data => {
+SPFDSync.on('change init', (data) => {
     console.log('OnFn Change:')
     console.log(data)
 })
@@ -114,12 +115,14 @@ let resetSync = document.querySelector('.reset-sync')
 
 if (!!nextPage) {
     nextPage.addEventListener('click', () => {
+        //document.querySelector('[name="paged"]').value = page
         page++
         SPFDSync.setValue(document.querySelector('[name="paged"]'), page)
     })
 }
 if (!!prevPage) {
     prevPage.addEventListener('click', () => {
+        //document.querySelector('[name="paged"]').value = page
         page--
         SPFDSync.setValue('paged', page)
     })
@@ -128,5 +131,12 @@ if (!!prevPage) {
 if (!!resetSync) {
     resetSync.addEventListener('click', () => {
         SPFDSync.reset()
+    })
+}
+
+let setChecked = document.querySelector('.set-checked')
+if(!!setChecked) {
+    setChecked.addEventListener('click', () => {
+        SPFDSync.setChecked('checkbox', 3)
     })
 }

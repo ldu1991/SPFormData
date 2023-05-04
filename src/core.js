@@ -11,10 +11,13 @@ class SPFormData {
 
     #innerPresetQueries;
 
+    #secondForm;
+
     constructor(...args) {
         this.#submitTimeout = true;
         this.#eventsListeners = {};
         this.#innerPresetQueries = [];
+        this.#secondForm = null;
 
         let el;
         let params;
@@ -26,28 +29,36 @@ class SPFormData {
         }
         if (!params) params = {};
 
+        this.params = { ...defaults, ...params };
+
         this.elements = convertToArray(el);
 
         if (!this.elements.length) return;
 
-        if (params.presetQueries !== undefined && !Array.isArray(params.presetQueries)) throw new Error('"presetQueries" parameter must be an Array');
+        if (this.params.secondForm) {
+            this.#secondForm = convertToArray(this.params.secondForm);
+            this.elements = [...convertToArray(el), ...this.#secondForm];
+        }
 
-        this.#innerPresetQueries = params.presetQueries;
+        if (this.params.presetQueries !== undefined && !Array.isArray(this.params.presetQueries))
+            throw new Error('"presetQueries" parameter must be an Array');
 
-        if (this.#innerPresetQueries === undefined) {
-            params.presetQueries = [];
+        this.#innerPresetQueries = this.params.presetQueries;
+
+        if (this.#innerPresetQueries === undefined || !this.#innerPresetQueries.length) {
+            this.params.presetQueries = [];
             this.elements.forEach((formElement) => {
                 if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a FORM element');
 
                 formElement.querySelectorAll('[name]').forEach((element) => {
-                    if (!params.presetQueries.includes(element.name)) {
-                        params.presetQueries.push(element.name);
+                    if (element.type !== 'file') {
+                        if (!this.params.presetQueries.includes(element.name)) {
+                            this.params.presetQueries.push(element.name);
+                        }
                     }
                 });
             });
         }
-
-        this.params = { ...defaults, ...params };
 
         if (!isValid(this.params.separator)) this.params.separator = defaults.separator;
 
@@ -173,25 +184,35 @@ class SPFormData {
     }
 
     #submit() {
-        this.elements.forEach((formElement) => {
-            formElement.addEventListener('submit', (e) => {
-                e.preventDefault();
+        const self = this;
+        self.elements.forEach((formElement) => {
+            formElement.addEventListener('submit', (event) => {
+                event.preventDefault();
 
-                if (!this.params.autoSubmit) {
-                    this.#activateForm();
+                if (!self.params.autoSubmit) {
+                    for (let { target } = event; target && target !== this; target = target.parentNode) {
+                        if (self.params.secondForm && !self.#secondForm.includes(target)) {
+                            self.#secondForm.forEach((secondFormElement) => {
+                                secondFormElement.reset();
+                            });
+                        }
+                    }
 
-                    this.#emit('submit');
+                    self.#activateForm();
+
+                    self.#emit('submit');
                 }
             });
         });
     }
 
     #autoSubmit() {
-        this.elements.forEach((formElement) => {
+        const self = this;
+        self.elements.forEach((formElement) => {
             let nameElements = '[name]';
 
-            if (this.#innerPresetQueries !== undefined) {
-                const { presetQueries } = this.params;
+            if (self.#innerPresetQueries !== undefined) {
+                const { presetQueries } = self.params;
                 const inputElements = [];
                 presetQueries.forEach((key) => {
                     inputElements.push(`[name="${key}"]`);
@@ -200,16 +221,30 @@ class SPFormData {
                 nameElements = inputElements.join(',');
             }
 
-            formElement.querySelectorAll(nameElements).forEach((element) => {
-                if (element.type !== 'file') {
-                    element.addEventListener('change', () => {
-                        if (this.#submitTimeout) clearTimeout(this.#submitTimeout);
-                        this.#submitTimeout = setTimeout(() => {
-                            this.#activateForm();
-                        }, this.params.delayBeforeSend);
-                    });
-                }
-            });
+            formElement.addEventListener(
+                'change',
+                (event) => {
+                    for (let { target } = event; target && target !== this; target = target.parentNode) {
+                        if (target.matches(nameElements)) {
+                            if (target.type !== 'file') {
+                                if (this.params.secondForm && !this.#secondForm.includes(target.form)) {
+                                    this.#secondForm.forEach((secondFormElement) => {
+                                        secondFormElement.reset();
+                                    });
+                                }
+
+                                if (self.#submitTimeout) clearTimeout(self.#submitTimeout);
+                                self.#submitTimeout = setTimeout(() => {
+                                    self.#activateForm();
+                                }, self.params.delayBeforeSend);
+                            }
+
+                            break;
+                        }
+                    }
+                },
+                true
+            );
         });
     }
 
@@ -344,7 +379,7 @@ class SPFormData {
                 throw new Error('setValue(name, value) "value" is required!');
             }
 
-            this.#activateForm();
+            this.update();
         }
     }
 
@@ -370,7 +405,7 @@ class SPFormData {
         if (element && (element.type === 'checkbox' || element.type === 'radio')) {
             element.checked = true;
 
-            this.#activateForm();
+            this.update();
         }
     }
 

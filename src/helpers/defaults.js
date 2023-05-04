@@ -5,5 +5,6 @@ export default {
     autoSubmit: true,
     changeQueryParameters: true,
     presetQueries: [],
-    multipleArray: true
+    multipleArray: true,
+    secondForm: null
 };

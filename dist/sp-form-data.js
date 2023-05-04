@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: April 15, 2023
+ * Released on: May 04, 2023
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -125,9 +125,16 @@ var normalizeArray = function normalizeArray(arrDataForm, separator) {
   autoSubmit: true,
   changeQueryParameters: true,
   presetQueries: [],
-  multipleArray: true
+  multipleArray: true,
+  secondForm: null
 });
 ;// CONCATENATED MODULE: ./src/core.js
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -151,6 +158,7 @@ function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.
 var _submitTimeout = /*#__PURE__*/new WeakMap();
 var _eventsListeners = /*#__PURE__*/new WeakMap();
 var _innerPresetQueries = /*#__PURE__*/new WeakMap();
+var _secondForm = /*#__PURE__*/new WeakMap();
 var _searchParams = /*#__PURE__*/new WeakSet();
 var _changeQueryParameters = /*#__PURE__*/new WeakSet();
 var _noChangeQueryParameters = /*#__PURE__*/new WeakSet();
@@ -187,9 +195,14 @@ var SPFormData = /*#__PURE__*/function () {
       writable: true,
       value: void 0
     });
+    _classPrivateFieldInitSpec(this, _secondForm, {
+      writable: true,
+      value: void 0
+    });
     _classPrivateFieldSet(this, _submitTimeout, true);
     _classPrivateFieldSet(this, _eventsListeners, {});
     _classPrivateFieldSet(this, _innerPresetQueries, []);
+    _classPrivateFieldSet(this, _secondForm, null);
     var el;
     var _params;
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -202,22 +215,28 @@ var SPFormData = /*#__PURE__*/function () {
       _params = args[1];
     }
     if (!_params) _params = {};
+    this.params = _objectSpread(_objectSpread({}, defaults), _params);
     this.elements = helpers_convertToArray(el);
     if (!this.elements.length) return;
-    if (_params.presetQueries !== undefined && !Array.isArray(_params.presetQueries)) throw new Error('"presetQueries" parameter must be an Array');
-    _classPrivateFieldSet(this, _innerPresetQueries, _params.presetQueries);
-    if (_classPrivateFieldGet(this, _innerPresetQueries) === undefined) {
-      _params.presetQueries = [];
+    if (this.params.secondForm) {
+      _classPrivateFieldSet(this, _secondForm, helpers_convertToArray(this.params.secondForm));
+      this.elements = [].concat(_toConsumableArray(helpers_convertToArray(el)), _toConsumableArray(_classPrivateFieldGet(this, _secondForm)));
+    }
+    if (this.params.presetQueries !== undefined && !Array.isArray(this.params.presetQueries)) throw new Error('"presetQueries" parameter must be an Array');
+    _classPrivateFieldSet(this, _innerPresetQueries, this.params.presetQueries);
+    if (_classPrivateFieldGet(this, _innerPresetQueries) === undefined || !_classPrivateFieldGet(this, _innerPresetQueries).length) {
+      this.params.presetQueries = [];
       this.elements.forEach(function (formElement) {
         if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a FORM element');
         formElement.querySelectorAll('[name]').forEach(function (element) {
-          if (!_params.presetQueries.includes(element.name)) {
-            _params.presetQueries.push(element.name);
+          if (element.type !== 'file') {
+            if (!_this.params.presetQueries.includes(element.name)) {
+              _this.params.presetQueries.push(element.name);
+            }
           }
         });
       });
     }
-    this.params = _objectSpread(_objectSpread({}, defaults), _params);
     if (!isValid(this.params.separator)) this.params.separator = defaults.separator;
     if (this.params && this.params.on) {
       Object.keys(this.params.on).forEach(function (eventName) {
@@ -313,7 +332,7 @@ var SPFormData = /*#__PURE__*/function () {
         } else {
           throw new Error('setValue(name, value) "value" is required!');
         }
-        _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
+        this.update();
       }
     }
   }, {
@@ -336,7 +355,7 @@ var SPFormData = /*#__PURE__*/function () {
       }
       if (element && (element.type === 'checkbox' || element.type === 'radio')) {
         element.checked = true;
-        _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
+        this.update();
       }
     }
   }, {
@@ -454,38 +473,55 @@ function _clear2() {
 }
 function _submit2() {
   var _this5 = this;
-  this.elements.forEach(function (formElement) {
-    formElement.addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (!_this5.params.autoSubmit) {
-        _classPrivateMethodGet(_this5, _activateForm, _activateForm2).call(_this5);
-        _classPrivateMethodGet(_this5, _emit, _emit2).call(_this5, 'submit');
+  var self = this;
+  self.elements.forEach(function (formElement) {
+    formElement.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (!self.params.autoSubmit) {
+        for (var target = event.target; target && target !== _this5; target = target.parentNode) {
+          if (self.params.secondForm && !_classPrivateFieldGet(self, _secondForm).includes(target)) {
+            _classPrivateFieldGet(self, _secondForm).forEach(function (secondFormElement) {
+              secondFormElement.reset();
+            });
+          }
+        }
+        _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
+        _classPrivateMethodGet(self, _emit, _emit2).call(self, 'submit');
       }
     });
   });
 }
 function _autoSubmit2() {
   var _this6 = this;
-  this.elements.forEach(function (formElement) {
+  var self = this;
+  self.elements.forEach(function (formElement) {
     var nameElements = '[name]';
-    if (_classPrivateFieldGet(_this6, _innerPresetQueries) !== undefined) {
-      var presetQueries = _this6.params.presetQueries;
+    if (_classPrivateFieldGet(self, _innerPresetQueries) !== undefined) {
+      var presetQueries = self.params.presetQueries;
       var inputElements = [];
       presetQueries.forEach(function (key) {
         inputElements.push("[name=\"".concat(key, "\"]"));
       });
       nameElements = inputElements.join(',');
     }
-    formElement.querySelectorAll(nameElements).forEach(function (element) {
-      if (element.type !== 'file') {
-        element.addEventListener('change', function () {
-          if (_classPrivateFieldGet(_this6, _submitTimeout)) clearTimeout(_classPrivateFieldGet(_this6, _submitTimeout));
-          _classPrivateFieldSet(_this6, _submitTimeout, setTimeout(function () {
-            _classPrivateMethodGet(_this6, _activateForm, _activateForm2).call(_this6);
-          }, _this6.params.delayBeforeSend));
-        });
+    formElement.addEventListener('change', function (event) {
+      for (var target = event.target; target && target !== _this6; target = target.parentNode) {
+        if (target.matches(nameElements)) {
+          if (target.type !== 'file') {
+            if (_this6.params.secondForm && !_classPrivateFieldGet(_this6, _secondForm).includes(target.form)) {
+              _classPrivateFieldGet(_this6, _secondForm).forEach(function (secondFormElement) {
+                secondFormElement.reset();
+              });
+            }
+            if (_classPrivateFieldGet(self, _submitTimeout)) clearTimeout(_classPrivateFieldGet(self, _submitTimeout));
+            _classPrivateFieldSet(self, _submitTimeout, setTimeout(function () {
+              _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
+            }, self.params.delayBeforeSend));
+          }
+          break;
+        }
       }
-    });
+    }, true);
   });
 }
 function _popstate2() {

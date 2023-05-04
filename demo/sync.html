@@ -20,19 +20,19 @@
 
 <form id="filter-sync">
     <label for="text-field">Text field:</label>
-    <input type="text" id="text-field" name="text" required>
+    <input type="text" id="text-field" name="text">
 
     <br>
     <br>
 
     <label for="email-field">Email field:</label>
-    <input type="email" id="email-field" name="email" required>
+    <input type="email" id="email-field" name="email">
 
     <br>
     <br>
 
     <label for="password-field">Password field:</label>
-    <input type="password" id="password-field" name="password" required>
+    <input type="password" id="password-field" name="password">
 
     <br>
     <br>
@@ -89,7 +89,7 @@
     <br>
 
     <label for="range">Value range:</label>
-    <input type="range" id="range" name="range" min="0" max="100" step="1">
+    <input type="range" id="range" name="range" min="0" max="100" step="1" value="">
 
     <br>
     <br>
@@ -101,13 +101,18 @@
     <br>
 
     <label for="color">Color palette:</label>
-    <input type="color" id="color" name="color">
+    <input type="color" id="color" name="color" value="">
 
     <br>
     <br>
 
-    <!-- Submit button, needed if option autoSubmit: false -->
-    <input type="submit" value="submit">
+    <label for="file">File field:</label>
+    <input type="file" id="file" name="file">
+
+    <br>
+    <br>
+
+    <button type="submit">Submit</button>
 </form>
 
 
@@ -116,14 +121,21 @@
 
 <h2>Form Pagination</h2>
 <form id="pagination-sync">
-    <button class="prev-page">Prev</button>
+    <div class="prev-page">Prev</div>
     <label>
         <input type="text" name="paged" placeholder="" value="1">
     </label>
-    <button class="next-page">Next</button>
+    <div class="next-page">Next</div>
+</form>
+<form id="pagination-sync-2">
+    <label>
+        <input type="text" name="pageds" placeholder="" value="855">
+    </label>
 </form>
 
 <button class="reset-sync">Reset</button>
+<button class="set-checked">setChecked</button>
+
 
 </body>
 </html>
