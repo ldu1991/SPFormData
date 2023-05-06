@@ -135,8 +135,8 @@ site.com?search=product+name&date=DESC&option=1,2
 |Methods|Description|
 |---|---|
 |SPFD.init()|Initialize SPFormData|
-|SPFD.update()|You should call it after you change form manually, or do any custom DOM modifications with SPFormData|
-|SPFD.reset()|Clear form and URL Query Parameters and reset to default|
+|SPFD.update()|You should call it after you change form manually, or do any custom DOM modifications with SPFormData<br>**Note: Doesn't work when "autoSubmit: false"**|
+|SPFD.reset()|Clear form and URL Query Parameters and reset to default<br>**Note: Doesn't work when "autoSubmit: false"**|
 |SPFD.on(event, handler)|Add event handler|
 |SPFD.once(event, handler)|Add event handler that will be removed after it was fired|
 |SPFD.off(event, handler)|Remove event handler|
