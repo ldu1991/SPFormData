@@ -28,7 +28,7 @@ let SPFDSync = new SPFormData('#filter-sync', {
     init: false,
     separator: ',',
     delayBeforeSend: 650,
-    autoSubmit: true,
+    autoSubmit: false,
     changeQueryParameters: true,
     secondForm: '#pagination-sync, #pagination-sync-2'
     //presetQueries: ['color', 'range', 'dropdown'],

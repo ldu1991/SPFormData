@@ -183,6 +183,15 @@ class SPFormData {
         this.query = null;
     }
 
+    #secondFormReset(form) {
+        const self = this;
+        if (self.params.secondForm && !self.#secondForm.includes(form)) {
+            self.#secondForm.forEach((secondFormElement) => {
+                secondFormElement.reset();
+            });
+        }
+    }
+
     #submit() {
         const self = this;
         self.elements.forEach((formElement) => {
@@ -191,11 +200,7 @@ class SPFormData {
 
                 if (!self.params.autoSubmit) {
                     for (let { target } = event; target && target !== this; target = target.parentNode) {
-                        if (self.params.secondForm && !self.#secondForm.includes(target)) {
-                            self.#secondForm.forEach((secondFormElement) => {
-                                secondFormElement.reset();
-                            });
-                        }
+                        this.#secondFormReset(target)
                     }
 
                     self.#activateForm();
@@ -227,11 +232,7 @@ class SPFormData {
                     for (let { target } = event; target && target !== this; target = target.parentNode) {
                         if (target.matches(nameElements)) {
                             if (target.type !== 'file') {
-                                if (this.params.secondForm && !this.#secondForm.includes(target.form)) {
-                                    this.#secondForm.forEach((secondFormElement) => {
-                                        secondFormElement.reset();
-                                    });
-                                }
+                                this.#secondFormReset(target.form)
 
                                 if (self.#submitTimeout) clearTimeout(self.#submitTimeout);
                                 self.#submitTimeout = setTimeout(() => {
@@ -340,9 +341,11 @@ class SPFormData {
     update() {
         if (!this.elements.length) return;
 
-        this.#activateForm();
+        if(this.params.autoSubmit) {
+            this.#activateForm();
 
-        this.#emit('update');
+            this.#emit('update');
+        }
     }
 
     reset() {
@@ -352,11 +355,15 @@ class SPFormData {
             formElement.reset();
         });
 
-        this.#activateForm();
+        if(this.params.autoSubmit) {
+            this.#activateForm();
+        }
 
         this.#clear();
 
-        this.#emit('reset');
+        if(this.params.autoSubmit) {
+            this.#emit('reset');
+        }
     }
 
     setValue(name, value) {
@@ -373,6 +380,8 @@ class SPFormData {
         }
 
         if (element && (element.type !== 'checkbox' || element.type !== 'radio' || element.type !== 'file')) {
+            this.#secondFormReset(element.form)
+
             if (value) {
                 element.value = value;
             } else {
@@ -403,6 +412,8 @@ class SPFormData {
         }
 
         if (element && (element.type === 'checkbox' || element.type === 'radio')) {
+            this.#secondFormReset(element.form)
+
             element.checked = true;
 
             this.update();
