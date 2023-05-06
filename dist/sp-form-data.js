@@ -1,5 +1,5 @@
 /*!
- * SPFormData 4.1.1
+ * SPFormData 4.1.2
  * VanillaJS (pure JavaScript) plugin that reads form data and Change URL Query Parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: May 04, 2023
+ * Released on: May 06, 2023
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -164,6 +164,7 @@ var _changeQueryParameters = /*#__PURE__*/new WeakSet();
 var _noChangeQueryParameters = /*#__PURE__*/new WeakSet();
 var _activateForm = /*#__PURE__*/new WeakSet();
 var _clear = /*#__PURE__*/new WeakSet();
+var _secondFormReset = /*#__PURE__*/new WeakSet();
 var _submit = /*#__PURE__*/new WeakSet();
 var _autoSubmit = /*#__PURE__*/new WeakSet();
 var _popstate = /*#__PURE__*/new WeakSet();
@@ -178,6 +179,7 @@ var SPFormData = /*#__PURE__*/function () {
     _classPrivateMethodInitSpec(this, _popstate);
     _classPrivateMethodInitSpec(this, _autoSubmit);
     _classPrivateMethodInitSpec(this, _submit);
+    _classPrivateMethodInitSpec(this, _secondFormReset);
     _classPrivateMethodInitSpec(this, _clear);
     _classPrivateMethodInitSpec(this, _activateForm);
     _classPrivateMethodInitSpec(this, _noChangeQueryParameters);
@@ -299,8 +301,10 @@ var SPFormData = /*#__PURE__*/function () {
     key: "update",
     value: function update() {
       if (!this.elements.length) return;
-      _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
-      _classPrivateMethodGet(this, _emit, _emit2).call(this, 'update');
+      if (this.params.autoSubmit) {
+        _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
+        _classPrivateMethodGet(this, _emit, _emit2).call(this, 'update');
+      }
     }
   }, {
     key: "reset",
@@ -309,9 +313,13 @@ var SPFormData = /*#__PURE__*/function () {
       this.elements.forEach(function (formElement) {
         formElement.reset();
       });
-      _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
+      if (this.params.autoSubmit) {
+        _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
+      }
       _classPrivateMethodGet(this, _clear, _clear2).call(this);
-      _classPrivateMethodGet(this, _emit, _emit2).call(this, 'reset');
+      if (this.params.autoSubmit) {
+        _classPrivateMethodGet(this, _emit, _emit2).call(this, 'reset');
+      }
     }
   }, {
     key: "setValue",
@@ -327,6 +335,7 @@ var SPFormData = /*#__PURE__*/function () {
         element = name;
       }
       if (element && (element.type !== 'checkbox' || element.type !== 'radio' || element.type !== 'file')) {
+        _classPrivateMethodGet(this, _secondFormReset, _secondFormReset2).call(this, element.form);
         if (value) {
           element.value = value;
         } else {
@@ -354,6 +363,7 @@ var SPFormData = /*#__PURE__*/function () {
         element = name;
       }
       if (element && (element.type === 'checkbox' || element.type === 'radio')) {
+        _classPrivateMethodGet(this, _secondFormReset, _secondFormReset2).call(this, element.form);
         element.checked = true;
         this.update();
       }
@@ -471,6 +481,14 @@ function _clear2() {
   }
   this.query = null;
 }
+function _secondFormReset2(form) {
+  var self = this;
+  if (self.params.secondForm && !_classPrivateFieldGet(self, _secondForm).includes(form)) {
+    _classPrivateFieldGet(self, _secondForm).forEach(function (secondFormElement) {
+      secondFormElement.reset();
+    });
+  }
+}
 function _submit2() {
   var _this5 = this;
   var self = this;
@@ -479,11 +497,7 @@ function _submit2() {
       event.preventDefault();
       if (!self.params.autoSubmit) {
         for (var target = event.target; target && target !== _this5; target = target.parentNode) {
-          if (self.params.secondForm && !_classPrivateFieldGet(self, _secondForm).includes(target)) {
-            _classPrivateFieldGet(self, _secondForm).forEach(function (secondFormElement) {
-              secondFormElement.reset();
-            });
-          }
+          _classPrivateMethodGet(_this5, _secondFormReset, _secondFormReset2).call(_this5, target);
         }
         _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
         _classPrivateMethodGet(self, _emit, _emit2).call(self, 'submit');
@@ -508,11 +522,7 @@ function _autoSubmit2() {
       for (var target = event.target; target && target !== _this6; target = target.parentNode) {
         if (target.matches(nameElements)) {
           if (target.type !== 'file') {
-            if (_this6.params.secondForm && !_classPrivateFieldGet(_this6, _secondForm).includes(target.form)) {
-              _classPrivateFieldGet(_this6, _secondForm).forEach(function (secondFormElement) {
-                secondFormElement.reset();
-              });
-            }
+            _classPrivateMethodGet(_this6, _secondFormReset, _secondFormReset2).call(_this6, target.form);
             if (_classPrivateFieldGet(self, _submitTimeout)) clearTimeout(_classPrivateFieldGet(self, _submitTimeout));
             _classPrivateFieldSet(self, _submitTimeout, setTimeout(function () {
               _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
