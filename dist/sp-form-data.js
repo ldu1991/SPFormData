@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: May 06, 2023
+ * Released on: August 17, 2023
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -159,10 +159,12 @@ var _submitTimeout = /*#__PURE__*/new WeakMap();
 var _eventsListeners = /*#__PURE__*/new WeakMap();
 var _innerPresetQueries = /*#__PURE__*/new WeakMap();
 var _secondForm = /*#__PURE__*/new WeakMap();
+var _processingQueryParameters = /*#__PURE__*/new WeakSet();
 var _searchParams = /*#__PURE__*/new WeakSet();
 var _changeQueryParameters = /*#__PURE__*/new WeakSet();
 var _noChangeQueryParameters = /*#__PURE__*/new WeakSet();
 var _activateForm = /*#__PURE__*/new WeakSet();
+var _initActivateForm = /*#__PURE__*/new WeakSet();
 var _clear = /*#__PURE__*/new WeakSet();
 var _secondFormReset = /*#__PURE__*/new WeakSet();
 var _submit = /*#__PURE__*/new WeakSet();
@@ -181,10 +183,12 @@ var SPFormData = /*#__PURE__*/function () {
     _classPrivateMethodInitSpec(this, _submit);
     _classPrivateMethodInitSpec(this, _secondFormReset);
     _classPrivateMethodInitSpec(this, _clear);
+    _classPrivateMethodInitSpec(this, _initActivateForm);
     _classPrivateMethodInitSpec(this, _activateForm);
     _classPrivateMethodInitSpec(this, _noChangeQueryParameters);
     _classPrivateMethodInitSpec(this, _changeQueryParameters);
     _classPrivateMethodInitSpec(this, _searchParams);
+    _classPrivateMethodInitSpec(this, _processingQueryParameters);
     _classPrivateFieldInitSpec(this, _submitTimeout, {
       writable: true,
       value: void 0
@@ -385,15 +389,37 @@ var SPFormData = /*#__PURE__*/function () {
   }]);
   return SPFormData;
 }();
-function _searchParams2() {
+function _processingQueryParameters2(arr) {
   var _this2 = this;
+  if (!isObject(arr)) {
+    var query = {};
+    Object.keys(arr).forEach(function (pair) {
+      if (!isEmpty(arr[pair])) {
+        if (_this2.params.multipleArray) {
+          if (arr[pair].indexOf(_this2.params.separator) !== -1) {
+            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(_this2.params.separator);
+          } else {
+            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
+          }
+        } else {
+          query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
+        }
+      }
+    });
+    this.query = query;
+  } else {
+    _classPrivateMethodGet(this, _clear, _clear2).call(this);
+  }
+}
+function _searchParams2() {
+  var _this3 = this;
   if (this.params.changeQueryParameters) {
     var params = new URLSearchParams(window.location.search);
     var query = {};
     params.forEach(function (value, key) {
-      var _this2$params = _this2.params,
-        multipleArray = _this2$params.multipleArray,
-        separator = _this2$params.separator;
+      var _this3$params = _this3.params,
+        multipleArray = _this3$params.multipleArray,
+        separator = _this3$params.separator;
       if (!isEmpty(value)) {
         if (multipleArray) {
           if (value.indexOf(separator) !== -1) {
@@ -436,26 +462,7 @@ function _changeQueryParameters2(arr) {
   _classPrivateMethodGet(this, _emit, _emit2).call(this, 'change');
 }
 function _noChangeQueryParameters2(arr) {
-  var _this3 = this;
-  if (!isObject(arr)) {
-    var query = {};
-    Object.keys(arr).forEach(function (pair) {
-      if (!isEmpty(arr[pair])) {
-        if (_this3.params.multipleArray) {
-          if (arr[pair].indexOf(_this3.params.separator) !== -1) {
-            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(_this3.params.separator);
-          } else {
-            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
-          }
-        } else {
-          query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
-        }
-      }
-    });
-    this.query = query;
-  } else {
-    _classPrivateMethodGet(this, _clear, _clear2).call(this);
-  }
+  _classPrivateMethodGet(this, _processingQueryParameters, _processingQueryParameters2).call(this, arr);
   _classPrivateMethodGet(this, _emit, _emit2).call(this, 'change');
 }
 function _activateForm2() {
@@ -475,6 +482,19 @@ function _activateForm2() {
     _classPrivateMethodGet(this, _noChangeQueryParameters, _noChangeQueryParameters2).call(this, result);
   }
 }
+function _initActivateForm2() {
+  var _this5 = this;
+  var result = {};
+  this.elements.forEach(function (formElement) {
+    var arrDataForm = helpers_serializeArray(formElement);
+    if (arrDataForm.length) {
+      result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this5.params.separator));
+    } else {
+      _classPrivateMethodGet(_this5, _clear, _clear2).call(_this5);
+    }
+  });
+  _classPrivateMethodGet(this, _processingQueryParameters, _processingQueryParameters2).call(this, result);
+}
 function _clear2() {
   if (this.params.changeQueryParameters) {
     window.history.pushState({}, '', '.');
@@ -490,14 +510,14 @@ function _secondFormReset2(form) {
   }
 }
 function _submit2() {
-  var _this5 = this;
+  var _this6 = this;
   var self = this;
   self.elements.forEach(function (formElement) {
     formElement.addEventListener('submit', function (event) {
       event.preventDefault();
       if (!self.params.autoSubmit) {
-        for (var target = event.target; target && target !== _this5; target = target.parentNode) {
-          _classPrivateMethodGet(_this5, _secondFormReset, _secondFormReset2).call(_this5, target);
+        for (var target = event.target; target && target !== _this6; target = target.parentNode) {
+          _classPrivateMethodGet(_this6, _secondFormReset, _secondFormReset2).call(_this6, target);
         }
         _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
         _classPrivateMethodGet(self, _emit, _emit2).call(self, 'submit');
@@ -506,7 +526,7 @@ function _submit2() {
   });
 }
 function _autoSubmit2() {
-  var _this6 = this;
+  var _this7 = this;
   var self = this;
   self.elements.forEach(function (formElement) {
     var nameElements = '[name]';
@@ -519,10 +539,10 @@ function _autoSubmit2() {
       nameElements = inputElements.join(',');
     }
     formElement.addEventListener('change', function (event) {
-      for (var target = event.target; target && target !== _this6; target = target.parentNode) {
+      for (var target = event.target; target && target !== _this7; target = target.parentNode) {
         if (target.matches(nameElements)) {
           if (target.type !== 'file') {
-            _classPrivateMethodGet(_this6, _secondFormReset, _secondFormReset2).call(_this6, target.form);
+            _classPrivateMethodGet(_this7, _secondFormReset, _secondFormReset2).call(_this7, target.form);
             if (_classPrivateFieldGet(self, _submitTimeout)) clearTimeout(_classPrivateFieldGet(self, _submitTimeout));
             _classPrivateFieldSet(self, _submitTimeout, setTimeout(function () {
               _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
@@ -535,19 +555,21 @@ function _autoSubmit2() {
   });
 }
 function _popstate2() {
-  var _this7 = this;
+  var _this8 = this;
   window.addEventListener('popstate', function () {
     if (!isEmpty(window.location.search)) {
-      _classPrivateMethodGet(_this7, _searchParams, _searchParams2).call(_this7);
+      _classPrivateMethodGet(_this8, _searchParams, _searchParams2).call(_this8);
     } else {
-      _classPrivateMethodGet(_this7, _clear, _clear2).call(_this7);
+      _classPrivateMethodGet(_this8, _clear, _clear2).call(_this8);
     }
-    _classPrivateMethodGet(_this7, _emit, _emit2).call(_this7, 'popstate');
+    _classPrivateMethodGet(_this8, _emit, _emit2).call(_this8, 'popstate');
   });
 }
 function _searchParamsDefined2() {
   if (!isEmpty(window.location.search)) {
     _classPrivateMethodGet(this, _searchParams, _searchParams2).call(this);
+  } else {
+    _classPrivateMethodGet(this, _initActivateForm, _initActivateForm2).call(this);
   }
 }
 function _emit2(events) {

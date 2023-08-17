@@ -3,17 +3,27 @@ import SPFormData from '../src/core'
 let filter = document.querySelectorAll('#filter')
 
 let SPFD = new SPFormData(filter, {
+    init: false,
     //separator: ',',
-    //delayBeforeSend: 650,
+    delayBeforeSend: 800,
     //autoSubmit: true,
-    changeQueryParameters: false,
+    //changeQueryParameters: false,
     //presetQueries: ['option', 'search'],
 });
 
-SPFD.on('change', data => {
-    console.log('OnFn Change:')
+SPFD.on('init change', data => {
+    console.log('OnFn Init and Change:')
     console.log(data)
 })
+
+/*SPFD.on('change', data => {
+    console.log('OnFn Change:')
+    console.log(data)
+})*/
+
+SPFD.init()
+
+
 
 let reset = document.querySelector('.reset')
 

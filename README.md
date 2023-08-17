@@ -141,7 +141,7 @@ site.com?search=product+name&date=DESC&option=1,2
 |SPFD.once(event, handler)|Add event handler that will be removed after it was fired|
 |SPFD.off(event, handler)|Remove event handler|
 |SPFD.setValue(name, value)|(name: object Node or String) Sets the field value by its "name" attribute or object Node. <br>**Note: Doesn't work with "checkbox" and "radio" field types!** <br> **Note 2: "value" is required!** <br> `SPFD.setValue('size', 'Lorem ipsum dolor.') or SPFD.setValue(document.querySelector('#filter [name="size"]'), 'Lorem ipsum dolor.')`|
-|SPFD.setChecked(name, value)|(name: object Node or String) Checked input type checkbox or radio. <br> **Note: "value" is required if string name is used!** <br> `SPFD.setValue('size', 3) or SPFD.setValue(document.querySelector('#filter [name="size"]'), 3) or SPFD.setValue(document.querySelector('#filter [name="size"]'))`
+|SPFD.setChecked(name, value)|(name: object Node or String) Checked input type checkbox or radio. <br> **Note: "value" is required if string name is used!** <br> `SPFD.setChecked('size', 3) or SPFD.setChecked(document.querySelector('#filter [name="size"]'), 3) or SPFD.setChecked(document.querySelector('#filter [name="size"]'))`
 
 
 ### Events

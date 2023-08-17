@@ -75,6 +75,30 @@ class SPFormData {
         }
     }
 
+    #processingQueryParameters(arr) {
+        if (!isObject(arr)) {
+            const query = {};
+
+            Object.keys(arr).forEach((pair) => {
+                if (!isEmpty(arr[pair])) {
+                    if (this.params.multipleArray) {
+                        if (arr[pair].indexOf(this.params.separator) !== -1) {
+                            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(this.params.separator);
+                        } else {
+                            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
+                        }
+                    } else {
+                        query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
+                    }
+                }
+            });
+
+            this.query = query;
+        } else {
+            this.#clear();
+        }
+    }
+
     #searchParams() {
         if (this.params.changeQueryParameters) {
             const params = new URLSearchParams(window.location.search);
@@ -132,27 +156,7 @@ class SPFormData {
     }
 
     #noChangeQueryParameters(arr) {
-        if (!isObject(arr)) {
-            const query = {};
-
-            Object.keys(arr).forEach((pair) => {
-                if (!isEmpty(arr[pair])) {
-                    if (this.params.multipleArray) {
-                        if (arr[pair].indexOf(this.params.separator) !== -1) {
-                            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(this.params.separator);
-                        } else {
-                            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
-                        }
-                    } else {
-                        query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
-                    }
-                }
-            });
-
-            this.query = query;
-        } else {
-            this.#clear();
-        }
+        this.#processingQueryParameters(arr);
 
         this.#emit('change');
     }
@@ -173,6 +177,20 @@ class SPFormData {
         } else {
             this.#noChangeQueryParameters(result);
         }
+    }
+
+    #initActivateForm() {
+        let result = {};
+        this.elements.forEach((formElement) => {
+            const arrDataForm = serializeArray(formElement);
+            if (arrDataForm.length) {
+                result = { ...result, ...normalizeArray(arrDataForm, this.params.separator) };
+            } else {
+                this.#clear();
+            }
+        });
+
+        this.#processingQueryParameters(result);
     }
 
     #clear() {
@@ -200,7 +218,7 @@ class SPFormData {
 
                 if (!self.params.autoSubmit) {
                     for (let { target } = event; target && target !== this; target = target.parentNode) {
-                        this.#secondFormReset(target)
+                        this.#secondFormReset(target);
                     }
 
                     self.#activateForm();
@@ -232,7 +250,7 @@ class SPFormData {
                     for (let { target } = event; target && target !== this; target = target.parentNode) {
                         if (target.matches(nameElements)) {
                             if (target.type !== 'file') {
-                                this.#secondFormReset(target.form)
+                                this.#secondFormReset(target.form);
 
                                 if (self.#submitTimeout) clearTimeout(self.#submitTimeout);
                                 self.#submitTimeout = setTimeout(() => {
@@ -264,6 +282,8 @@ class SPFormData {
     #searchParamsDefined() {
         if (!isEmpty(window.location.search)) {
             this.#searchParams();
+        } else {
+            this.#initActivateForm();
         }
     }
 
@@ -341,7 +361,7 @@ class SPFormData {
     update() {
         if (!this.elements.length) return;
 
-        if(this.params.autoSubmit) {
+        if (this.params.autoSubmit) {
             this.#activateForm();
 
             this.#emit('update');
@@ -355,13 +375,13 @@ class SPFormData {
             formElement.reset();
         });
 
-        if(this.params.autoSubmit) {
+        if (this.params.autoSubmit) {
             this.#activateForm();
         }
 
         this.#clear();
 
-        if(this.params.autoSubmit) {
+        if (this.params.autoSubmit) {
             this.#emit('reset');
         }
     }
@@ -380,7 +400,7 @@ class SPFormData {
         }
 
         if (element && (element.type !== 'checkbox' || element.type !== 'radio' || element.type !== 'file')) {
-            this.#secondFormReset(element.form)
+            this.#secondFormReset(element.form);
 
             if (value) {
                 element.value = value;
@@ -412,7 +432,7 @@ class SPFormData {
         }
 
         if (element && (element.type === 'checkbox' || element.type === 'radio')) {
-            this.#secondFormReset(element.form)
+            this.#secondFormReset(element.form);
 
             element.checked = true;
 
