@@ -1,5 +1,5 @@
 /*!
- * SPFormData 4.1.3
+ * SPFormData 5.0.0
  * VanillaJS (pure JavaScript) plugin that reads form data and Change URL Query Parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: August 17, 2023
+ * Released on: December 19, 2023
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -94,7 +94,12 @@ var serializeArray = function serializeArray(formElement) {
   var formData = new FormData(formElement);
   var pairs = [];
   formData.forEach(function (value, name) {
-    if (!isEmpty(value) && formElement.querySelector("[name=\"".concat(name, "\"]")).type !== 'file') {
+    if (!isEmpty(value)) {
+      pairs.push({
+        name,
+        value
+      });
+    } else if (formElement.querySelector("[name=\"".concat(name, "\"]")).type === 'file' && value.size > 0 && value.name !== '') {
       pairs.push({
         name,
         value
@@ -105,13 +110,27 @@ var serializeArray = function serializeArray(formElement) {
 };
 /* harmony default export */ var helpers_serializeArray = (serializeArray);
 ;// CONCATENATED MODULE: ./src/helpers/normalizeArray.js
-var normalizeArray = function normalizeArray(arrDataForm, separator) {
-  var result = {};
+var normalizeArray = function normalizeArray(arrDataForm, separator, formElement) {
+  var result = {
+    all_query: {},
+    string_query: {}
+  };
   arrDataForm.forEach(function (item) {
-    if (!result.hasOwnProperty(item.name)) {
-      result[item.name] = encodeURIComponent(item.value.replace(/ /g, '+'));
+    if (formElement.querySelector("[name=\"".concat(item.name, "\"]")).type === 'file') {
+      if (!result.all_query.hasOwnProperty(item.name)) {
+        result.all_query[item.name] = {
+          type: 'file',
+          elements: [item.value]
+        };
+      } else {
+        result.all_query[item.name].elements.push(item.value);
+      }
+    } else if (!result.string_query.hasOwnProperty(item.name)) {
+      result.all_query[item.name] = encodeURIComponent(item.value.replace(/ /g, '+'));
+      result.string_query[item.name] = encodeURIComponent(item.value.replace(/ /g, '+'));
     } else {
-      result[item.name] += separator + encodeURIComponent(item.value.replace(/ /g, '+'));
+      result.all_query[item.name] += separator + encodeURIComponent(item.value.replace(/ /g, '+'));
+      result.string_query[item.name] += separator + encodeURIComponent(item.value.replace(/ /g, '+'));
     }
   });
   return result;
@@ -235,10 +254,8 @@ var SPFormData = /*#__PURE__*/function () {
       this.elements.forEach(function (formElement) {
         if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a FORM element');
         formElement.querySelectorAll('[name]').forEach(function (element) {
-          if (element.type !== 'file') {
-            if (!_this.params.presetQueries.includes(element.name)) {
-              _this.params.presetQueries.push(element.name);
-            }
+          if (!_this.params.presetQueries.includes(element.name)) {
+            _this.params.presetQueries.push(element.name);
           }
         });
       });
@@ -305,10 +322,10 @@ var SPFormData = /*#__PURE__*/function () {
     key: "update",
     value: function update() {
       if (!this.elements.length) return;
-      if (this.params.autoSubmit) {
-        _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
-        _classPrivateMethodGet(this, _emit, _emit2).call(this, 'update');
-      }
+
+      /* if (this.params.autoSubmit) { */
+      _classPrivateMethodGet(this, _activateForm, _activateForm2).call(this);
+      _classPrivateMethodGet(this, _emit, _emit2).call(this, 'update');
     }
   }, {
     key: "reset",
@@ -340,7 +357,7 @@ var SPFormData = /*#__PURE__*/function () {
       }
       if (element && (element.type !== 'checkbox' || element.type !== 'radio' || element.type !== 'file')) {
         _classPrivateMethodGet(this, _secondFormReset, _secondFormReset2).call(this, element.form);
-        if (value) {
+        if (value !== '') {
           element.value = value;
         } else {
           throw new Error('setValue(name, value) "value" is required!');
@@ -394,7 +411,9 @@ function _processingQueryParameters2(arr) {
   if (!isObject(arr)) {
     var query = {};
     Object.keys(arr).forEach(function (pair) {
-      if (!isEmpty(arr[pair])) {
+      if (arr[pair].type !== undefined && arr[pair].type === 'file') {
+        query[pair] = arr[pair].elements;
+      } else if (!isEmpty(arr[pair])) {
         if (_this2.params.multipleArray) {
           if (arr[pair].indexOf(_this2.params.separator) !== -1) {
             query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(_this2.params.separator);
@@ -471,7 +490,11 @@ function _activateForm2() {
   this.elements.forEach(function (formElement) {
     var arrDataForm = helpers_serializeArray(formElement);
     if (arrDataForm.length) {
-      result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this4.params.separator));
+      if (_this4.params.changeQueryParameters) {
+        result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this4.params.separator, formElement).string_query);
+      } else {
+        result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this4.params.separator, formElement).all_query);
+      }
     } else {
       _classPrivateMethodGet(_this4, _clear, _clear2).call(_this4);
     }
@@ -488,7 +511,11 @@ function _initActivateForm2() {
   this.elements.forEach(function (formElement) {
     var arrDataForm = helpers_serializeArray(formElement);
     if (arrDataForm.length) {
-      result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this5.params.separator));
+      if (_this5.params.changeQueryParameters) {
+        result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this5.params.separator, formElement).string_query);
+      } else {
+        result = _objectSpread(_objectSpread({}, result), helpers_normalizeArray(arrDataForm, _this5.params.separator, formElement).all_query);
+      }
     } else {
       _classPrivateMethodGet(_this5, _clear, _clear2).call(_this5);
     }
@@ -541,13 +568,11 @@ function _autoSubmit2() {
     formElement.addEventListener('change', function (event) {
       for (var target = event.target; target && target !== _this7; target = target.parentNode) {
         if (target.matches(nameElements)) {
-          if (target.type !== 'file') {
-            _classPrivateMethodGet(_this7, _secondFormReset, _secondFormReset2).call(_this7, target.form);
-            if (_classPrivateFieldGet(self, _submitTimeout)) clearTimeout(_classPrivateFieldGet(self, _submitTimeout));
-            _classPrivateFieldSet(self, _submitTimeout, setTimeout(function () {
-              _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
-            }, self.params.delayBeforeSend));
-          }
+          _classPrivateMethodGet(_this7, _secondFormReset, _secondFormReset2).call(_this7, target.form);
+          if (_classPrivateFieldGet(self, _submitTimeout)) clearTimeout(_classPrivateFieldGet(self, _submitTimeout));
+          _classPrivateFieldSet(self, _submitTimeout, setTimeout(function () {
+            _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
+          }, self.params.delayBeforeSend));
           break;
         }
       }
