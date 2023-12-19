@@ -42,7 +42,7 @@ let SPFDSync = new SPFormData('#filter-sync', {
     changeQueryParameters: true,
     secondForm: '#pagination-sync, #pagination-sync-2'
     //presetQueries: ['color', 'range', 'dropdown'],
-    //multipleArray: false,
+    //multipleArray: true,
     /*on: {
         init: data => {
             console.warn('Console init:')
@@ -128,6 +128,8 @@ if (!!nextPage) {
         //document.querySelector('[name="paged"]').value = page
         page++
         SPFDSync.setValue(document.querySelector('[name="paged"]'), page)
+
+        console.log(page)
     })
 }
 if (!!prevPage) {

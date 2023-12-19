@@ -51,10 +51,8 @@ class SPFormData {
                 if (formElement.tagName !== 'FORM') throw new Error('SPFormData constructor must be passed a FORM element');
 
                 formElement.querySelectorAll('[name]').forEach((element) => {
-                    if (element.type !== 'file') {
-                        if (!this.params.presetQueries.includes(element.name)) {
-                            this.params.presetQueries.push(element.name);
-                        }
+                    if (!this.params.presetQueries.includes(element.name)) {
+                        this.params.presetQueries.push(element.name);
                     }
                 });
             });
@@ -80,7 +78,9 @@ class SPFormData {
             const query = {};
 
             Object.keys(arr).forEach((pair) => {
-                if (!isEmpty(arr[pair])) {
+                if (arr[pair].type !== undefined && arr[pair].type === 'file') {
+                    query[pair] = arr[pair].elements;
+                } else if (!isEmpty(arr[pair])) {
                     if (this.params.multipleArray) {
                         if (arr[pair].indexOf(this.params.separator) !== -1) {
                             query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(this.params.separator);
@@ -166,7 +166,11 @@ class SPFormData {
         this.elements.forEach((formElement) => {
             const arrDataForm = serializeArray(formElement);
             if (arrDataForm.length) {
-                result = { ...result, ...normalizeArray(arrDataForm, this.params.separator) };
+                if (this.params.changeQueryParameters) {
+                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, formElement).string_query };
+                } else {
+                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, formElement).all_query };
+                }
             } else {
                 this.#clear();
             }
@@ -184,7 +188,11 @@ class SPFormData {
         this.elements.forEach((formElement) => {
             const arrDataForm = serializeArray(formElement);
             if (arrDataForm.length) {
-                result = { ...result, ...normalizeArray(arrDataForm, this.params.separator) };
+                if (this.params.changeQueryParameters) {
+                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, formElement).string_query };
+                } else {
+                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, formElement).all_query };
+                }
             } else {
                 this.#clear();
             }
@@ -249,14 +257,12 @@ class SPFormData {
                 (event) => {
                     for (let { target } = event; target && target !== this; target = target.parentNode) {
                         if (target.matches(nameElements)) {
-                            if (target.type !== 'file') {
-                                this.#secondFormReset(target.form);
+                            this.#secondFormReset(target.form);
 
-                                if (self.#submitTimeout) clearTimeout(self.#submitTimeout);
-                                self.#submitTimeout = setTimeout(() => {
-                                    self.#activateForm();
-                                }, self.params.delayBeforeSend);
-                            }
+                            if (self.#submitTimeout) clearTimeout(self.#submitTimeout);
+                            self.#submitTimeout = setTimeout(() => {
+                                self.#activateForm();
+                            }, self.params.delayBeforeSend);
 
                             break;
                         }
@@ -361,11 +367,10 @@ class SPFormData {
     update() {
         if (!this.elements.length) return;
 
-        if (this.params.autoSubmit) {
-            this.#activateForm();
+        /* if (this.params.autoSubmit) { */
+        this.#activateForm();
 
-            this.#emit('update');
-        }
+        this.#emit('update');
     }
 
     reset() {
@@ -402,7 +407,7 @@ class SPFormData {
         if (element && (element.type !== 'checkbox' || element.type !== 'radio' || element.type !== 'file')) {
             this.#secondFormReset(element.form);
 
-            if (value) {
+            if (value !== '') {
                 element.value = value;
             } else {
                 throw new Error('setValue(name, value) "value" is required!');
