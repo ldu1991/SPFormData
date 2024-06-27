@@ -127,6 +127,7 @@ site.com?search=product+name&date=DESC&option=1,2
 |autoSubmit|boolean|true|Listen for form changes and auto submit
 |changeQueryParameters|boolean|true|Do I need to change query parameters of the URL request **Warning! If true, then file field types will not work.**
 |presetQueries|array|[...input[name]]|**SPFormData** will change query parameters and return data, in the order specified in the array of fields
+|excludeQueryParameters|array|[]|When **changeQueryParameters:true**, then the fields from the array are excluded from the query parameters
 |multipleArray|boolean|true|Whether the multiple choice will be returned as an array ```(?option=1,2,3,4 => array [1, 2, 3, 4] or string 1,2,3,4)```
 |secondForm|string<br>array<br>node<br>nodeList<br>nodeArray|null|Secondary forms, such as a pagination form, etc.<br>**Note: when updating the main form, all secondary forms are brought to the default state**
 

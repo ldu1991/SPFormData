@@ -9,6 +9,7 @@ let SPFD = new SPFormData(filter, {
     //autoSubmit: true,
     //changeQueryParameters: false,
     //presetQueries: ['option', 'search'],
+    excludeQueryParameters: ['email', 'search']
 });
 
 SPFD.on('init change', data => {

@@ -99,10 +99,10 @@ class SPFormData {
         }
     }
 
-    #searchParams() {
+    #searchParams(queryArr = {}) {
         if (this.params.changeQueryParameters) {
             const params = new URLSearchParams(window.location.search);
-            const query = {};
+            const query = { ...{}, ...queryArr };
 
             params.forEach((value, key) => {
                 const { multipleArray, separator } = this.params;
@@ -126,11 +126,25 @@ class SPFormData {
 
     #changeQueryParameters(arr) {
         if (!isObject(arr)) {
+            const filteredArr = Object.keys(arr).reduce((acc, key) => {
+                if (!this.params.excludeQueryParameters.includes(key)) {
+                    acc[key] = arr[key];
+                }
+                return acc;
+            }, {});
+
+            const queryArr = this.params.excludeQueryParameters.reduce((acc, key) => {
+                if (arr.hasOwnProperty(key)) {
+                    acc[key] = arr[key];
+                }
+                return acc;
+            }, {});
+
             const loc = new URL(window.location);
             const { presetQueries } = this.params;
 
             // Delete
-            Object.keys(arr).forEach((key) => {
+            Object.keys(filteredArr).forEach((key) => {
                 loc.searchParams.forEach((value, name) => {
                     if (name !== key) loc.searchParams.delete(name);
                 });
@@ -138,7 +152,7 @@ class SPFormData {
 
             // Add
             presetQueries.forEach((key) => {
-                if (arr.hasOwnProperty(key)) {
+                if (filteredArr.hasOwnProperty(key)) {
                     loc.searchParams.set(key, arr[key]);
                 }
             });
@@ -147,7 +161,7 @@ class SPFormData {
 
             window.history.pushState({}, '', url);
 
-            this.#searchParams();
+            this.#searchParams(queryArr);
         } else {
             this.#clear();
         }

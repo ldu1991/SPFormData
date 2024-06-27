@@ -8,5 +8,6 @@
 out
 gen
 node_modules
+src
 package-lock.json
 webpack.config.js
