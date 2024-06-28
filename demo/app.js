@@ -6,13 +6,18 @@ let SPFD = new SPFormData(filter, {
     init: false,
     //separator: ',',
     delayBeforeSend: 800,
-    //autoSubmit: true,
+    //autoSubmit: false,
     //changeQueryParameters: false,
     //presetQueries: ['option', 'search'],
-    excludeQueryParameters: ['email', 'search']
+    //secondForm: '.second-form',
+    // excludeQueryParameters: ['page'],
+    // resetFieldsOnChange: {
+    //     page: 55,
+    //     post: 789
+    // }
 });
 
-SPFD.on('init change', data => {
+SPFD.on('change', data => {
     console.log('OnFn Init and Change:')
     console.log(data)
 })

@@ -144,10 +144,8 @@ class SPFormData {
             const { presetQueries } = this.params;
 
             // Delete
-            Object.keys(filteredArr).forEach((key) => {
-                loc.searchParams.forEach((value, name) => {
-                    if (name !== key) loc.searchParams.delete(name);
-                });
+            Array.from(loc.searchParams.keys()).forEach(key => {
+                loc.searchParams.delete(key);
             });
 
             // Add
@@ -240,7 +238,9 @@ class SPFormData {
 
                 if (!self.params.autoSubmit) {
                     for (let { target } = event; target && target !== this; target = target.parentNode) {
-                        this.#secondFormReset(target);
+                        if (target instanceof Element) {
+                            this.#secondFormReset(target);
+                        }
                     }
 
                     self.#activateForm();
@@ -270,15 +270,32 @@ class SPFormData {
                 'change',
                 (event) => {
                     for (let { target } = event; target && target !== this; target = target.parentNode) {
-                        if (target.matches(nameElements)) {
-                            this.#secondFormReset(target.form);
+                        if (target instanceof Element) {
+                            if (target.matches(nameElements)) {
+                                this.#secondFormReset(target.form);
 
-                            if (self.#submitTimeout) clearTimeout(self.#submitTimeout);
-                            self.#submitTimeout = setTimeout(() => {
-                                self.#activateForm();
-                            }, self.params.delayBeforeSend);
+                                const fieldsArray = Object.keys(this.params.resetFieldsOnChange);
 
-                            break;
+                                fieldsArray.forEach(key => {
+                                    let inputElement = `[name="${key}"]`;
+
+                                    if (!fieldsArray.includes(target.name)) {
+                                        this.elements.forEach((formElement) => {
+                                            const nameElement = formElement.querySelector(inputElement);
+
+                                            nameElement.value = this.params.resetFieldsOnChange[key]
+                                        });
+                                    }
+                                });
+
+
+                                if (self.#submitTimeout) clearTimeout(self.#submitTimeout);
+                                self.#submitTimeout = setTimeout(() => {
+                                    self.#activateForm();
+                                }, self.params.delayBeforeSend);
+
+                                break;
+                            }
                         }
                     }
                 },

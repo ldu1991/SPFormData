@@ -6,6 +6,7 @@ export default {
     changeQueryParameters: true,
     presetQueries: [],
     excludeQueryParameters: [],
+    resetFieldsOnChange: {},
     multipleArray: true,
     secondForm: null
 };
