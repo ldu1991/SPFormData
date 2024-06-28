@@ -1,5 +1,5 @@
 /*!
- * SPFormData 5.1.1
+ * SPFormData 5.2.0
  * VanillaJS (pure JavaScript) plugin that reads form data and Change URL Query Parameters
  * https://github.com/ldu1991/sp-form-data/#readme
  *
@@ -7,7 +7,7 @@
  *
  * Released under the BSD License
  *
- * Released on: June 27, 2024
+ * Released on: June 28, 2024
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -145,6 +145,7 @@ var normalizeArray = function normalizeArray(arrDataForm, separator, formElement
   changeQueryParameters: true,
   presetQueries: [],
   excludeQueryParameters: [],
+  resetFieldsOnChange: {},
   multipleArray: true,
   secondForm: null
 });
@@ -475,10 +476,8 @@ function _changeQueryParameters2(arr) {
     var presetQueries = this.params.presetQueries;
 
     // Delete
-    Object.keys(filteredArr).forEach(function (key) {
-      loc.searchParams.forEach(function (value, name) {
-        if (name !== key) loc.searchParams.delete(name);
-      });
+    Array.from(loc.searchParams.keys()).forEach(function (key) {
+      loc.searchParams.delete(key);
     });
 
     // Add
@@ -559,7 +558,9 @@ function _submit2() {
       event.preventDefault();
       if (!self.params.autoSubmit) {
         for (var target = event.target; target && target !== _this7; target = target.parentNode) {
-          _classPrivateMethodGet(_this7, _secondFormReset, _secondFormReset2).call(_this7, target);
+          if (target instanceof Element) {
+            _classPrivateMethodGet(_this7, _secondFormReset, _secondFormReset2).call(_this7, target);
+          }
         }
         _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
         _classPrivateMethodGet(self, _emit, _emit2).call(self, 'submit');
@@ -581,15 +582,31 @@ function _autoSubmit2() {
       nameElements = inputElements.join(',');
     }
     formElement.addEventListener('change', function (event) {
-      for (var target = event.target; target && target !== _this8; target = target.parentNode) {
-        if (target.matches(nameElements)) {
-          _classPrivateMethodGet(_this8, _secondFormReset, _secondFormReset2).call(_this8, target.form);
-          if (_classPrivateFieldGet(self, _submitTimeout)) clearTimeout(_classPrivateFieldGet(self, _submitTimeout));
-          _classPrivateFieldSet(self, _submitTimeout, setTimeout(function () {
-            _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
-          }, self.params.delayBeforeSend));
-          break;
+      var _loop = function _loop(target) {
+        if (target instanceof Element) {
+          if (target.matches(nameElements)) {
+            _classPrivateMethodGet(_this8, _secondFormReset, _secondFormReset2).call(_this8, target.form);
+            var fieldsArray = Object.keys(_this8.params.resetFieldsOnChange);
+            fieldsArray.forEach(function (key) {
+              var inputElement = "[name=\"".concat(key, "\"]");
+              if (!fieldsArray.includes(target.name)) {
+                _this8.elements.forEach(function (formElement) {
+                  var nameElement = formElement.querySelector(inputElement);
+                  nameElement.value = _this8.params.resetFieldsOnChange[key];
+                });
+              }
+            });
+            if (_classPrivateFieldGet(self, _submitTimeout)) clearTimeout(_classPrivateFieldGet(self, _submitTimeout));
+            _classPrivateFieldSet(self, _submitTimeout, setTimeout(function () {
+              _classPrivateMethodGet(self, _activateForm, _activateForm2).call(self);
+            }, self.params.delayBeforeSend));
+            return "break";
+          }
         }
+      };
+      for (var target = event.target; target && target !== _this8; target = target.parentNode) {
+        var _ret = _loop(target);
+        if (_ret === "break") break;
       }
     }, true);
   });
