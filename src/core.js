@@ -74,6 +74,7 @@ class SPFormData {
     }
 
     #processingQueryParameters(arr) {
+        const self = this;
         if (!isObject(arr)) {
             const query = {};
 
@@ -81,9 +82,9 @@ class SPFormData {
                 if (arr[pair].type !== undefined && arr[pair].type === 'file') {
                     query[pair] = arr[pair].elements;
                 } else if (!isEmpty(arr[pair])) {
-                    if (this.params.multipleArray) {
-                        if (arr[pair].indexOf(this.params.separator) !== -1) {
-                            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(this.params.separator);
+                    if (self.params.multipleArray) {
+                        if (arr[pair].indexOf(self.params.separator) !== -1) {
+                            query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ').split(self.params.separator);
                         } else {
                             query[pair] = decodeURIComponent(arr[pair]).replace(/\+/g, ' ');
                         }
@@ -93,19 +94,20 @@ class SPFormData {
                 }
             });
 
-            this.query = query;
+            self.query = query;
         } else {
-            this.#clear();
+            self.#clear();
         }
     }
 
     #searchParams(queryArr = {}) {
-        if (this.params.changeQueryParameters) {
+        const self = this;
+        if (self.params.changeQueryParameters) {
             const params = new URLSearchParams(window.location.search);
             const query = { ...{}, ...queryArr };
 
             params.forEach((value, key) => {
-                const { multipleArray, separator } = this.params;
+                const { multipleArray, separator } = self.params;
 
                 if (!isEmpty(value)) {
                     if (multipleArray) {
@@ -120,20 +122,21 @@ class SPFormData {
                 }
             });
 
-            this.query = !isObject(query) ? query : null;
+            self.query = !isObject(query) ? query : null;
         }
     }
 
     #changeQueryParameters(arr) {
+        const self = this;
         if (!isObject(arr)) {
             const filteredArr = Object.keys(arr).reduce((acc, key) => {
-                if (!this.params.excludeQueryParameters.includes(key)) {
+                if (!self.params.excludeQueryParameters.includes(key)) {
                     acc[key] = arr[key];
                 }
                 return acc;
             }, {});
 
-            const queryArr = this.params.excludeQueryParameters.reduce((acc, key) => {
+            const queryArr = self.params.excludeQueryParameters.reduce((acc, key) => {
                 if (arr.hasOwnProperty(key)) {
                     acc[key] = arr[key];
                 }
@@ -141,10 +144,10 @@ class SPFormData {
             }, {});
 
             const loc = new URL(window.location);
-            const { presetQueries } = this.params;
+            const { presetQueries } = self.params;
 
             // Delete
-            Array.from(loc.searchParams.keys()).forEach(key => {
+            Array.from(loc.searchParams.keys()).forEach((key) => {
                 loc.searchParams.delete(key);
             });
 
@@ -159,12 +162,12 @@ class SPFormData {
 
             window.history.pushState({}, '', url);
 
-            this.#searchParams(queryArr);
+            self.#searchParams(queryArr);
         } else {
-            this.#clear();
+            self.#clear();
         }
 
-        this.#emit('change');
+        self.#emit('change');
     }
 
     #noChangeQueryParameters(arr) {
@@ -174,43 +177,45 @@ class SPFormData {
     }
 
     #activateForm() {
+        const self = this;
         let result = {};
-        this.elements.forEach((formElement) => {
+        self.elements.forEach((formElement) => {
             const arrDataForm = serializeArray(formElement);
             if (arrDataForm.length) {
-                if (this.params.changeQueryParameters) {
-                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, formElement).string_query };
+                if (self.params.changeQueryParameters) {
+                    result = { ...result, ...normalizeArray(arrDataForm, self.params.separator, formElement).string_query };
                 } else {
-                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, formElement).all_query };
+                    result = { ...result, ...normalizeArray(arrDataForm, self.params.separator, formElement).all_query };
                 }
             } else {
-                this.#clear();
+                self.#clear();
             }
         });
 
-        if (this.params.changeQueryParameters) {
-            this.#changeQueryParameters(result);
+        if (self.params.changeQueryParameters) {
+            self.#changeQueryParameters(result);
         } else {
-            this.#noChangeQueryParameters(result);
+            self.#noChangeQueryParameters(result);
         }
     }
 
     #initActivateForm() {
+        const self = this;
         let result = {};
-        this.elements.forEach((formElement) => {
+        self.elements.forEach((formElement) => {
             const arrDataForm = serializeArray(formElement);
             if (arrDataForm.length) {
-                if (this.params.changeQueryParameters) {
-                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, formElement).string_query };
+                if (self.params.changeQueryParameters) {
+                    result = { ...result, ...normalizeArray(arrDataForm, self.params.separator, formElement).string_query };
                 } else {
-                    result = { ...result, ...normalizeArray(arrDataForm, this.params.separator, formElement).all_query };
+                    result = { ...result, ...normalizeArray(arrDataForm, self.params.separator, formElement).all_query };
                 }
             } else {
-                this.#clear();
+                self.#clear();
             }
         });
 
-        this.#processingQueryParameters(result);
+        self.#processingQueryParameters(result);
     }
 
     #clear() {
@@ -239,7 +244,7 @@ class SPFormData {
                 if (!self.params.autoSubmit) {
                     for (let { target } = event; target && target !== this; target = target.parentNode) {
                         if (target instanceof Element) {
-                            this.#secondFormReset(target);
+                            self.#secondFormReset(target);
                         }
                     }
 
@@ -272,22 +277,21 @@ class SPFormData {
                     for (let { target } = event; target && target !== this; target = target.parentNode) {
                         if (target instanceof Element) {
                             if (target.matches(nameElements)) {
-                                this.#secondFormReset(target.form);
+                                self.#secondFormReset(target.form);
 
-                                const fieldsArray = Object.keys(this.params.resetFieldsOnChange);
+                                const fieldsArray = Object.keys(self.params.resetFieldsOnChange);
 
-                                fieldsArray.forEach(key => {
-                                    let inputElement = `[name="${key}"]`;
+                                fieldsArray.forEach((key) => {
+                                    const inputElement = `[name="${key}"]`;
 
                                     if (!fieldsArray.includes(target.name)) {
-                                        this.elements.forEach((formElement) => {
-                                            const nameElement = formElement.querySelector(inputElement);
+                                        self.elements.forEach((formEl) => {
+                                            const nameElement = formEl.querySelector(inputElement);
 
-                                            nameElement.value = this.params.resetFieldsOnChange[key]
+                                            nameElement.value = self.params.resetFieldsOnChange[key];
                                         });
                                     }
                                 });
-
 
                                 if (self.#submitTimeout) clearTimeout(self.#submitTimeout);
                                 self.#submitTimeout = setTimeout(() => {

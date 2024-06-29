@@ -6,15 +6,15 @@ let SPFD = new SPFormData(filter, {
     init: false,
     //separator: ',',
     delayBeforeSend: 800,
-    //autoSubmit: false,
+    autoSubmit: false,
     //changeQueryParameters: false,
     //presetQueries: ['option', 'search'],
     //secondForm: '.second-form',
     // excludeQueryParameters: ['page'],
-    // resetFieldsOnChange: {
-    //     page: 55,
-    //     post: 789
-    // }
+    resetFieldsOnChange: {
+        page: 55,
+        post: 789
+    }
 });
 
 SPFD.on('change', data => {
